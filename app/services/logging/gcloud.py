@@ -370,8 +370,10 @@ class GCloudLogger(BaseLogger):
                 **sanitized_extra,
             }
             import json
+            import sys
 
-            print(json.dumps(json_payload, default=str))
+            print(json.dumps(json_payload, default=str), flush=True)
+            sys.stdout.flush()
 
     def debug(self, message: str, **kwargs):
         """Log debug message."""
