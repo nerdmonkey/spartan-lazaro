@@ -2,11 +2,19 @@
 # using gcloud. It follows the same syntax as .gitignore, with the addition of
 # "#!include" directives (which are not supported by git).
 
+# Exclude development and build files
 .git
-.vscode
+.gitignore
+.gcloudignore
+.vscode/
 .env
 .env.*
+.coveragerc
+.DS_Store
+.flake8
+.python-version
 __pycache__/
+**/__pycache__/
 *.pyc
 *.pyo
 *.pyd
@@ -16,22 +24,25 @@ venv/
 .venv/
 pip-log.txt
 .coverage
-.tox
-.cache
+.tox/
+.cache/
 nosetests.xml
-.pytest_cache
-.vscode/
+.pytest_cache/
+
+# Exclude documentation and tests
 notebooks/
 tests/
 docs/
-storage/
-*.sqlite3
+CHANGELOG.md
+CONTRIBUTING.md
+CODE_OF_CONDUCT.md
 
-# Allow main.py and required directories
-!main.py
-!requirements.txt
-!app/
-!config/
-!handlers/
-!LICENSE
-!README.md
+# Exclude storage and database
+storage/
+database/
+*.sqlite3
+alembic.ini
+tinker.py
+tox.ini
+pytest.ini
+requirements-dev.txt
