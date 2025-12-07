@@ -26,7 +26,7 @@ def test_main_function_logs_event():
         mock_logger.info.assert_called_once()
         # Verify the call includes message and extra data
         call_args, call_kwargs = mock_logger.info.call_args
-        assert call_args[0] == "Received Cloud Event"
+        assert call_args[0] == "Spartan Received Cloud Event"
         assert "extra" in call_kwargs
         expected_event_type = "google.cloud.pubsub.topic.v1.messagePublished"
         assert call_kwargs["extra"]["event_type"] == expected_event_type

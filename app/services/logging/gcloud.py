@@ -109,20 +109,26 @@ class GCloudLogger(BaseLogger):
         )
 
         # Initialize GCP logging
-        self.client = get_gcp_logging_client()
-        if self.client:
-            # Use structured logger (not Python logging handler)
-            self.logger = self.client.logger(service_name)
-            self.use_gcp = True
-        else:
-            # Fallback to print for local development
+        # For Cloud Run/Functions 2nd gen, use stdout JSON logging
+        is_cloud_run = env("K_SERVICE") is not None
+        
+        if is_cloud_run:
+            # Cloud Run automatically captures stdout as structured logs
+            self.client = None
             self.logger = None
-            self.use_gcp = False
-            print(
-                f"Warning: GCP Logging not available, using fallback for {service_name}"
-            )
+            self.use_gcp = False  # Use JSON stdout instead
+        else:
+            self.client = get_gcp_logging_client()
+            if self.client:
+                # Use structured logger (not Python logging handler)
+                self.logger = self.client.logger(service_name)
+                self.use_gcp = True
+            else:
+                # Fallback to print for local development
+                self.logger = None
+                self.use_gcp = False
 
-        # Get resource information for Cloud Run/Functions
+        # Get resource information for Cloud Run/Functions (needed for both modes)
         self.resource = self._get_resource()
 
     def _get_resource(self) -> Optional[Resource]:
@@ -133,7 +139,7 @@ class GCloudLogger(BaseLogger):
         identify the resource. This ensures logs are properly grouped in
         Cloud Logging.
         """
-        if not self.use_gcp:
+        if not GCP_LOGGING_AVAILABLE:
             return None
 
         # Cloud Run environment variables
@@ -353,9 +359,10 @@ class GCloudLogger(BaseLogger):
                 # Fallback if GCP logging fails
                 print(f"[{severity}] {message} | extra: {extra} | error: {e}")
         else:
-            # Fallback - print direct JSON payload (GCP best practice)
+            # Fallback - print JSON with severity for Cloud Logging
             sanitized_extra = self._sanitize_data(extra or {})
             json_payload = {
+                "severity": severity,
                 "message": message,
                 "service": self.service_name,
                 "environment": env("APP_ENVIRONMENT", "unknown"),

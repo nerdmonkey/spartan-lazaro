@@ -9,7 +9,7 @@ logger = get_logger("spartan.lazaro.main")
 def main(cloud_event: CloudEvent) -> None:
     try:
         # Process event
-        logger.info("Received Cloud Event", extra={
+        logger.info("Spartan Received Cloud Event", extra={
             "event_type": cloud_event["type"],
             "event_source": cloud_event["source"],
             "event_id": cloud_event["id"],
@@ -18,6 +18,7 @@ def main(cloud_event: CloudEvent) -> None:
             "log_channel": env("LOG_CHANNEL", "default"),
             "data": cloud_event.data
         })
+
     except Exception as e:
         logger.exception("Failed to process", extra={"error": str(e)})
         raise  # Causes Pub/Sub to retry

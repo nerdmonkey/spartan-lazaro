@@ -21,6 +21,11 @@ pip-log.txt
 nosetests.xml
 .pytest_cache
 .vscode/
+notebooks/
+tests/
+docs/
+storage/
+*.sqlite3
 
 # Allow main.py and required directories
 !main.py
@@ -29,3 +34,4 @@ nosetests.xml
 !config/
 !handlers/
 !LICENSE
+!README.md
