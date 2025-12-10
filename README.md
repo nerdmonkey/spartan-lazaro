@@ -3,16 +3,17 @@
 # Spartan Serverless Framework
 
 ## About
-**Spartan Serverless Framework**—"the Swiss Army knife for serverless development"—is a powerful scaffold that simplifies the creation of serverless applications on AWS. It streamlines your development process and ensures code consistency, allowing you to build scalable and efficient applications on AWS with ease.
+**Spartan Serverless Framework**—"the Swiss Army knife for serverless development"—is a powerful scaffold that simplifies the creation of serverless applications on Google Cloud Platform (GCP). It streamlines your development process and ensures code consistency, allowing you to build scalable and efficient applications on GCP with ease.
 
 #### Spartan Serverless Framework is versatile and can be used to efficiently develop:
 - RESTful API
-- Workflows or State Machines
+- Cloud Functions and Event-driven workflows
 - Small or Medium-sized ETL Pipelines
-- Containerized Microservices
+- Containerized Microservices on Cloud Run
+- Pub/Sub message processing
 - Agentic AI (Coming Soon)
 
-Fully tested in AWS, Spartan Serverless Framework is also compatible with other cloud providers like Azure and GCP, making it a flexible choice for a wide range of serverless applications.
+Fully tested on Google Cloud Platform, Spartan Serverless Framework is also compatible with other cloud providers like AWS and Azure, making it a flexible choice for a wide range of serverless applications.
 
 ---
 
@@ -113,13 +114,32 @@ curl -X POST localhost:8080 \
   -H "Content-Type: application/cloudevents+json" \
   -d '{
     "specversion" : "1.0",
-    "type" : "example.com.cloud.event",
-    "source" : "https://example.com/cloudevents/pull",
+    "type" : "google.cloud.pubsub.topic.v1.messagePublished",
+    "source" : "//pubsub.googleapis.com/projects/my-project/topics/my-topic",
     "subject" : "123",
     "id" : "A234-1234-1234",
     "time" : "2018-04-05T17:31:00Z",
     "data" : "Hello Spartan Lazaro!"
 }'
+```
+
+### Deploy to Google Cloud Functions
+
+Deploy your function to GCP:
+
+```bash
+# Deploy as HTTP function
+gcloud functions deploy spartan-function \
+  --runtime python311 \
+  --trigger-http \
+  --entry-point main \
+  --allow-unauthenticated
+
+# Deploy as Pub/Sub triggered function
+gcloud functions deploy spartan-function \
+  --runtime python311 \
+  --trigger-topic my-topic \
+  --entry-point main
 ```
 
 ---
