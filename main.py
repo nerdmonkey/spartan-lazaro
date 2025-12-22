@@ -31,7 +31,7 @@ if __name__ == "__main__":
     Local testing entry point.
     Run with: python main.py
     """
-    from app.helpers.context import MockCloudEvent, MockCloudFunctionsContext
+    from app.helpers.context import MockCloudEvent
 
     # Create a mock CloudEvent for testing
     mock_event_data = MockCloudEvent().to_dict()
