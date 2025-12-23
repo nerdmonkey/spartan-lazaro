@@ -78,6 +78,7 @@ target/
 # Jupyter Notebook
 .ipynb_checkpoints
 *.ipynb
+notebooks/
 
 # IPython
 profile_default/
@@ -175,9 +176,7 @@ node_modules/
 .vscode
 
 *.db
-Dockerfile
 build.sql
-docker-compose.yml
 
 *.yml
 tinker.py
