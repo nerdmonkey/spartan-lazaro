@@ -672,7 +672,8 @@ def test_version_history_preservation(mock_service):
     # List all versions to verify they're all preserved
     list_response = mock_service.list_parameter_versions(parameter_name)
 
-    # Verify response structure (actual version count would be verified in integration tests)
+    # Verify response structure (actual version count would be verified in
+    # integration tests)
     assert isinstance(list_response.versions, list)
 
 
@@ -942,7 +943,9 @@ def test_list_parameters_with_multiple_filters(mock_service):
     """Test listing parameters with complex filter expression."""
     filter_expr = "labels.team=backend AND format=JSON"
 
-    response = mock_service.list_parameters(page_size=50, filter_expression=filter_expr)
+    response = mock_service.list_parameters(
+        page_size=50, filter_expression=filter_expr
+    )
 
     assert isinstance(response.parameters, list)
 
@@ -1258,7 +1261,9 @@ def test_list_parameters_logs_operation(mock_service):
 
     with patch.object(mock_service, "_log_operation_start") as mock_start:
         with patch.object(mock_service, "_log_operation_success") as mock_success:
-            mock_service.list_parameters(page_size=50, filter_expression=filter_expr)
+            mock_service.list_parameters(
+                page_size=50, filter_expression=filter_expr
+            )
 
             # Verify logging was called
             mock_start.assert_called_once()
@@ -1295,7 +1300,11 @@ def test_render_parameter_with_single_secret_reference(mock_service):
     # Mock get_parameter to return a parameter with a secret reference
     mock_param_response = ParameterResponse(
         parameter_name="test-param",
-        data="password=${secret.projects/test-project/secrets/db-password/versions/latest}",
+        data=(
+
+            "password=${secret.projects/test-project/secrets/"
+            "db-password/versions/latest}"
+        ),
         format_type="UNFORMATTED",
         version="v1",
         created_time=datetime.now(),
@@ -1327,6 +1336,7 @@ def test_render_parameter_with_single_secret_reference(mock_service):
 
     assert result == "password=actual-secret-value"
     mock_secret_service.get_secret.assert_called_once_with(
+
         "db-password", version="latest"
     )
 
@@ -1336,7 +1346,10 @@ def test_render_parameter_with_multiple_secret_references(mock_service):
     # Mock get_parameter to return a parameter with multiple secret references
     mock_param_response = ParameterResponse(
         parameter_name="test-param",
-        data="user=${secret.projects/test-project/secrets/db-user/versions/1}&pass=${secret.projects/test-project/secrets/db-pass/versions/2}",
+        data=(
+            "user=${secret.projects/test-project/secrets/db-user/versions/1}"
+            "&pass=${secret.projects/test-project/secrets/db-pass/versions/2}"
+        ),
         format_type="UNFORMATTED",
         version="v1",
         created_time=datetime.now(),
@@ -1408,7 +1421,9 @@ def test_render_parameter_with_nonexistent_secret(mock_service):
     # Mock get_parameter to return a parameter with a secret reference
     mock_param_response = ParameterResponse(
         parameter_name="test-param",
-        data="password=${secret.projects/test-project/secrets/nonexistent/versions/latest}",
+        data="""
+            password=${secret.projects/test-project/secrets/nonexistent/versions/latest}
+        """,
         format_type="UNFORMATTED",
         version="v1",
         created_time=datetime.now(),
@@ -1416,7 +1431,8 @@ def test_render_parameter_with_nonexistent_secret(mock_service):
         labels=None,
     )
 
-    # Mock SecretManagerService and its get_secret method to raise SecretNotFoundException
+    # Mock SecretManagerService and its get_secret method to
+    # raise SecretNotFoundException
     with patch.object(mock_service, "get_parameter", return_value=mock_param_response):
         with patch(
             "app.services.secret_manager.SecretManagerService"
@@ -1442,7 +1458,10 @@ def test_render_parameter_with_json_data(mock_service):
     mock_param_response = ParameterResponse(
         parameter_name="test-param",
         data={
-            "password": "${secret.projects/test-project/secrets/db-password/versions/latest}"
+            "password": (
+                "${secret.projects/test-project/secrets/"
+                "db-password/versions/latest}"
+            )
         },
         format_type="JSON",
         version="v1",
@@ -1483,7 +1502,10 @@ def test_render_parameter_with_specific_version(mock_service):
     # Mock get_parameter to return a specific version
     mock_param_response = ParameterResponse(
         parameter_name="test-param",
-        data="password=${secret.projects/test-project/secrets/db-password/versions/1}",
+        data=(
+            "password=${secret.projects/test-project/secrets/"
+            "db-password/versions/1}"
+        ),
         format_type="UNFORMATTED",
         version="v1",
         created_time=datetime.now(),
@@ -1562,7 +1584,8 @@ def test_render_parameter_parses_single_secret_reference(mock_service):
 
     assert result == "api_key=secret-key-value"
     # Verify secret service was called with correct parameters
-    mock_secret_service.get_secret.assert_called_once_with("api-key", version="latest")
+    mock_secret_service.get_secret.assert_called_once_with(
+        "api-key", version="latest")
 
 
 def test_render_parameter_parses_multiple_secret_references(mock_service):
@@ -1570,7 +1593,10 @@ def test_render_parameter_parses_multiple_secret_references(mock_service):
     # Mock get_parameter to return a parameter with multiple secret references
     mock_param_response = ParameterResponse(
         parameter_name="test-param",
-        data="user=${secret.projects/test-project/secrets/db-user/versions/1}&pass=${secret.projects/test-project/secrets/db-pass/versions/2}",
+        data=(
+            "user=${secret.projects/test-project/secrets/db-user/versions/1}"
+            "&pass=${secret.projects/test-project/secrets/db-pass/versions/2}"
+        ),
         format_type="UNFORMATTED",
         version="latest",
         created_time=datetime.now(),
@@ -1623,7 +1649,10 @@ def test_render_parameter_resolves_secret_successfully(mock_service):
     # Mock get_parameter to return a parameter with a secret reference
     mock_param_response = ParameterResponse(
         parameter_name="db-config",
-        data="postgresql://user:${secret.projects/test-project/secrets/db-password/versions/latest}@localhost/db",
+        data=(
+            "postgresql://user:${secret.projects/test-project/secrets/"
+            "db-password/versions/latest}@localhost/db"
+        ),
         format_type="UNFORMATTED",
         version="latest",
         created_time=datetime.now(),
@@ -1771,7 +1800,12 @@ def test_render_parameter_with_mixed_content(mock_service):
     # Mock get_parameter to return a parameter with mixed content
     mock_param_response = ParameterResponse(
         parameter_name="test-param",
-        data="host=localhost port=5432 password=${secret.projects/test-project/secrets/db-pass/versions/latest} timeout=30",
+        data=(
+            "host=localhost port=5432 "
+            "password=${secret.projects/test-project/secrets/"
+            "db-pass/versions/latest} "
+            "timeout=30"
+        ),
         format_type="UNFORMATTED",
         version="latest",
         created_time=datetime.now(),
@@ -1810,9 +1844,15 @@ def test_render_parameter_with_json_containing_secrets(mock_service):
         data={
             "database": {
                 "host": "localhost",
-                "password": "${secret.projects/test-project/secrets/db-pass/versions/1}",
+                "password": (
+                    "${secret.projects/test-project/secrets/"
+                    "db-pass/versions/1}"
+                ),
             },
-            "api_key": "${secret.projects/test-project/secrets/api-key/versions/latest}",
+            "api_key": (
+                "${secret.projects/test-project/secrets/"
+                "api-key/versions/latest}"
+            ),
         },
         format_type="JSON",
         version="latest",
@@ -1863,7 +1903,9 @@ def test_render_parameter_with_semantic_version_names(mock_service):
     # Mock get_parameter to return a parameter with semantic version names
     mock_param_response = ParameterResponse(
         parameter_name="test-param",
-        data="key=${secret.projects/test-project/secrets/api-key/versions/prod-2024-01}",
+        data=(
+            "key=${secret.projects/test/secrets/api-key/versions/prod-2024-01}"
+        ),
         format_type="UNFORMATTED",
         version="latest",
         created_time=datetime.now(),
@@ -1894,6 +1936,7 @@ def test_render_parameter_with_semantic_version_names(mock_service):
     assert result == "key=prod-key-value"
     # Verify the semantic version was used
     mock_secret_service.get_secret.assert_called_once_with(
+
         "api-key", version="prod-2024-01"
     )
 
@@ -1961,7 +2004,10 @@ def test_render_parameter_with_special_characters_in_secret_value(mock_service):
     # Mock get_parameter to return a parameter with a secret reference
     mock_param_response = ParameterResponse(
         parameter_name="test-param",
-        data="password=${secret.projects/test-project/secrets/special-pass/versions/latest}",
+        data=(
+            "password="
+            "${secret.projects/test-project/secrets/special-pass/versions/latest}"
+        ),
         format_type="UNFORMATTED",
         version="latest",
         created_time=datetime.now(),
@@ -1994,11 +2040,14 @@ def test_render_parameter_with_special_characters_in_secret_value(mock_service):
 
 
 def test_render_parameter_with_same_secret_multiple_times(mock_service):
-    """Test rendering parameter with the same secret reference appearing multiple times."""
+    """Test rendering parameter with the same secret reference multiple times."""
     # Mock get_parameter to return a parameter with duplicate secret references
     mock_param_response = ParameterResponse(
         parameter_name="test-param",
-        data="user=${secret.projects/test-project/secrets/cred/versions/1} pass=${secret.projects/test-project/secrets/cred/versions/1}",
+        data=(
+            "user=${secret.projects/test-project/secrets/db-user/versions/1}"
+            "&pass=${secret.projects/test-project/secrets/db-pass/versions/2}"
+        ),
         format_type="UNFORMATTED",
         version="latest",
         created_time=datetime.now(),
@@ -2026,9 +2075,17 @@ def test_render_parameter_with_same_secret_multiple_times(mock_service):
 
             result = mock_service.render_parameter("test-param")
 
-    assert result == "user=shared-value pass=shared-value"
+    assert (
+        result == (
+            "user=shared-value"
+            "&pass="
+            "shared-value"
+        )
+    )
     # Verify the secret was fetched for each occurrence
-    assert mock_secret_service.get_secret.call_count == 2
+    assert (
+        mock_secret_service.get_secret.call_count == 2
+    )
 
 
 def test_render_parameter_logs_secret_resolution(mock_service):
@@ -2083,7 +2140,9 @@ def test_render_parameter_handles_malformed_secret_path(mock_service):
     # Mock get_parameter to return a parameter with malformed secret path
     mock_param_response = ParameterResponse(
         parameter_name="test-param",
-        data="key=${secret.projects/test-project/secrets}",  # Missing version, should be left unchanged
+        data=(
+            "key=${secret.projects/test-project/secrets}"
+        ),  # Missing version, should be left unchanged
         format_type="UNFORMATTED",
         version="latest",
         created_time=datetime.now(),

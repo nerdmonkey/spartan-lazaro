@@ -5,6 +5,7 @@ Tests the ParameterManagerService initialization with various environment
 configurations, credential handling, and project detection scenarios.
 """
 
+import json
 import subprocess
 
 import pytest
@@ -53,7 +54,8 @@ def test_init_with_explicit_project_id(mock_logger):
 def test_init_with_google_cloud_project_env(
     mock_logger, clean_environment, monkeypatch
 ):
-    """Test project ID detection from GOOGLE_CLOUD_PROJECT environment variable."""
+    """Test project ID detection from GOOGLE_CLOUD_PROJECT environment
+    variable."""
     monkeypatch.setenv("GOOGLE_CLOUD_PROJECT", "env-project")
 
     service = ParameterManagerService()
@@ -61,7 +63,9 @@ def test_init_with_google_cloud_project_env(
     assert service.project_id == "env-project"
 
 
-def test_init_with_gcp_project_env(mock_logger, clean_environment, monkeypatch):
+def test_init_with_gcp_project_env(
+    mock_logger, clean_environment, monkeypatch
+):
     """Test project ID detection from GCP_PROJECT environment variable."""
     monkeypatch.setenv("GCP_PROJECT", "gcp-env-project")
 
@@ -70,7 +74,9 @@ def test_init_with_gcp_project_env(mock_logger, clean_environment, monkeypatch):
     assert service.project_id == "gcp-env-project"
 
 
-def test_init_with_gcloud_project_env(mock_logger, clean_environment, monkeypatch):
+def test_init_with_gcloud_project_env(
+    mock_logger, clean_environment, monkeypatch
+):
     """Test project ID detection from GCLOUD_PROJECT environment variable."""
     monkeypatch.setenv("GCLOUD_PROJECT", "gcloud-env-project")
 
@@ -79,7 +85,9 @@ def test_init_with_gcloud_project_env(mock_logger, clean_environment, monkeypatc
     assert service.project_id == "gcloud-env-project"
 
 
-def test_init_with_project_id_env(mock_logger, clean_environment, monkeypatch):
+def test_init_with_project_id_env(
+    mock_logger, clean_environment, monkeypatch
+):
     """Test project ID detection from PROJECT_ID environment variable."""
     monkeypatch.setenv("PROJECT_ID", "project-id-env")
 
@@ -88,8 +96,11 @@ def test_init_with_project_id_env(mock_logger, clean_environment, monkeypatch):
     assert service.project_id == "project-id-env"
 
 
-def test_init_project_id_priority_explicit_over_env(mock_logger, monkeypatch):
-    """Test that explicit project ID takes priority over environment variables."""
+def test_init_project_id_priority_explicit_over_env(
+    mock_logger, monkeypatch
+):
+    """Test that explicit project ID takes priority over environment
+    variables."""
     monkeypatch.setenv("GOOGLE_CLOUD_PROJECT", "env-project")
 
     service = ParameterManagerService(project_id="explicit-project")
@@ -97,7 +108,9 @@ def test_init_project_id_priority_explicit_over_env(mock_logger, monkeypatch):
     assert service.project_id == "explicit-project"
 
 
-def test_init_project_id_from_gcloud_config(mock_logger, clean_environment, mocker):
+def test_init_project_id_from_gcloud_config(
+    mock_logger, clean_environment, mocker
+):
     """Test project ID detection from gcloud config."""
     mock_result = mocker.Mock()
     mock_result.returncode = 0
@@ -109,7 +122,9 @@ def test_init_project_id_from_gcloud_config(mock_logger, clean_environment, mock
     assert service.project_id == "gcloud-config-project"
 
 
-def test_init_project_id_gcloud_config_fails(mock_logger, clean_environment, mocker):
+def test_init_project_id_gcloud_config_fails(
+    mock_logger, clean_environment, mocker
+):
     """Test handling when gcloud config command fails."""
     mocker.patch(
         "subprocess.run", side_effect=subprocess.CalledProcessError(1, "gcloud")
@@ -121,9 +136,13 @@ def test_init_project_id_gcloud_config_fails(mock_logger, clean_environment, moc
     assert "Project ID must be provided" in str(exc_info.value)
 
 
-def test_init_project_id_gcloud_config_timeout(mock_logger, clean_environment, mocker):
+def test_init_project_id_gcloud_config_timeout(
+    mock_logger, clean_environment, mocker
+):
     """Test handling when gcloud config command times out."""
-    mocker.patch("subprocess.run", side_effect=subprocess.TimeoutExpired("gcloud", 5))
+    mocker.patch(
+        "subprocess.run", side_effect=subprocess.TimeoutExpired("gcloud", 5)
+    )
 
     with pytest.raises(ParameterManagerException) as exc_info:
         ParameterManagerService()
@@ -131,9 +150,13 @@ def test_init_project_id_gcloud_config_timeout(mock_logger, clean_environment, m
     assert "Project ID must be provided" in str(exc_info.value)
 
 
-def test_init_project_id_gcloud_not_installed(mock_logger, clean_environment, mocker):
+def test_init_project_id_gcloud_not_installed(
+    mock_logger, clean_environment, mocker
+):
     """Test handling when gcloud is not installed."""
-    mocker.patch("subprocess.run", side_effect=FileNotFoundError("gcloud not found"))
+    mocker.patch(
+        "subprocess.run", side_effect=FileNotFoundError("gcloud not found")
+    )
 
     with pytest.raises(ParameterManagerException) as exc_info:
         ParameterManagerService()
@@ -141,7 +164,9 @@ def test_init_project_id_gcloud_not_installed(mock_logger, clean_environment, mo
     assert "Project ID must be provided" in str(exc_info.value)
 
 
-def test_init_project_id_from_metadata_service(mock_logger, clean_environment, mocker):
+def test_init_project_id_from_metadata_service(
+    mock_logger, clean_environment, mocker
+):
     """Test project ID detection from GCP metadata service."""
     mock_response = mocker.Mock()
     mock_response.status_code = 200
@@ -155,10 +180,14 @@ def test_init_project_id_from_metadata_service(mock_logger, clean_environment, m
     assert service.project_id == "metadata-project"
 
 
-def test_init_project_id_metadata_service_fails(mock_logger, clean_environment, mocker):
+def test_init_project_id_metadata_service_fails(
+    mock_logger, clean_environment, mocker
+):
     """Test handling when metadata service is unavailable."""
     mocker.patch("subprocess.run", side_effect=FileNotFoundError())
-    mocker.patch("requests.get", side_effect=Exception("Connection failed"))
+    mocker.patch(
+        "requests.get", side_effect=Exception("Connection failed")
+    )
 
     with pytest.raises(ParameterManagerException) as exc_info:
         ParameterManagerService()
@@ -166,7 +195,9 @@ def test_init_project_id_metadata_service_fails(mock_logger, clean_environment, 
     assert "Project ID must be provided" in str(exc_info.value)
 
 
-def test_init_project_id_metadata_service_404(mock_logger, clean_environment, mocker):
+def test_init_project_id_metadata_service_404(
+    mock_logger, clean_environment, mocker
+):
     """Test handling when metadata service returns 404."""
     mock_response = mocker.Mock()
     mock_response.status_code = 404
@@ -180,7 +211,9 @@ def test_init_project_id_metadata_service_404(mock_logger, clean_environment, mo
     assert "Project ID must be provided" in str(exc_info.value)
 
 
-def test_init_no_project_id_available(mock_logger, clean_environment, mocker):
+def test_init_no_project_id_available(
+    mock_logger, clean_environment, mocker
+):
     """Test initialization fails when no project ID can be determined."""
     mocker.patch("subprocess.run", side_effect=FileNotFoundError())
     mocker.patch("requests.get", side_effect=Exception("No metadata"))
@@ -201,25 +234,32 @@ def test_init_with_credentials_object(mock_logger, mocker):
     """Test initialization with a Credentials object."""
     mock_creds = mocker.Mock(spec=Credentials)
 
-    service = ParameterManagerService(project_id="test-project", credentials=mock_creds)
+    service = ParameterManagerService(
+        project_id="test-project", credentials=mock_creds
+    )
 
     assert service.credentials == mock_creds
 
 
 def test_init_with_credentials_json_string(mock_logger, mocker):
     """Test initialization with service account JSON string."""
-    creds_json = """{
+    creds_json = json.dumps({
         "type": "service_account",
         "project_id": "test-project",
         "private_key_id": "key-id",
-        "private_key": "-----BEGIN PRIVATE KEY-----\\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC\\n-----END PRIVATE KEY-----\\n",
+        "private_key": (
+            "-----BEGIN PRIVATE KEY-----\\nMII...\\n-----END PRIVATE KEY-----\\n"
+        ),
         "client_email": "test@test-project.iam.gserviceaccount.com",
         "client_id": "123456789",
         "auth_uri": "https://accounts.google.com/o/oauth2/auth",
         "token_uri": "https://oauth2.googleapis.com/token",
         "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-        "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/test%40test-project.iam.gserviceaccount.com"
-    }"""
+        "client_x509_cert_url": (
+            "https://www.googleapis.com/robot/v1/metadata/x509/"
+            "test%40test.iam.gserviceaccount.com"
+        )
+    })
 
     mock_creds = mocker.Mock(spec=service_account.Credentials)
     mock_from_info = mocker.patch(
@@ -227,7 +267,9 @@ def test_init_with_credentials_json_string(mock_logger, mocker):
         return_value=mock_creds,
     )
 
-    service = ParameterManagerService(project_id="test-project", credentials=creds_json)
+    service = ParameterManagerService(
+        project_id="test-project", credentials=creds_json
+    )
 
     assert service.credentials == mock_creds
     mock_from_info.assert_called_once()
@@ -238,7 +280,9 @@ def test_init_with_invalid_credentials_json(mock_logger):
     invalid_json = "{invalid json"
 
     with pytest.raises(ParameterManagerException) as exc_info:
-        ParameterManagerService(project_id="test-project", credentials=invalid_json)
+        ParameterManagerService(
+            project_id="test-project", credentials=invalid_json
+        )
 
     assert "Invalid credentials JSON string" in str(exc_info.value)
 
@@ -248,7 +292,9 @@ def test_init_with_invalid_credentials_type(mock_logger):
     invalid_creds = 12345  # Not a Credentials object or string
 
     with pytest.raises(ParameterManagerException) as exc_info:
-        ParameterManagerService(project_id="test-project", credentials=invalid_creds)
+        ParameterManagerService(
+            project_id="test-project", credentials=invalid_creds
+        )
 
     assert "Invalid credentials type" in str(exc_info.value)
 
@@ -262,13 +308,18 @@ def test_init_with_credentials_path(mock_logger, tmp_path, mocker):
         "type": "service_account",
         "project_id": "test-project",
         "private_key_id": "key-id",
-        "private_key": "-----BEGIN PRIVATE KEY-----\\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC\\n-----END PRIVATE KEY-----\\n",
+        "private_key": (
+            "-----BEGIN PRIVATE KEY-----\\nMII...\\n-----END PRIVATE KEY-----\\n"
+        ),
         "client_email": "test@test-project.iam.gserviceaccount.com",
         "client_id": "123456789",
         "auth_uri": "https://accounts.google.com/o/oauth2/auth",
         "token_uri": "https://oauth2.googleapis.com/token",
         "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-        "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/test%40test-project.iam.gserviceaccount.com"
+        "client_x509_cert_url": (
+            "https://www.googleapis.com/robot/v1/metadata/x509/"
+            "test%40test-project.iam.gserviceaccount.com"
+        )
     }"""
     )
 
@@ -315,21 +366,29 @@ def test_init_with_invalid_credentials_file(mock_logger, tmp_path, mocker):
     assert "Failed to load credentials from file" in str(exc_info.value)
 
 
-def test_init_credentials_path_priority_over_credentials(mock_logger, tmp_path, mocker):
-    """Test that credentials_path takes priority over credentials parameter."""
+def test_init_credentials_path_priority_over_credentials(
+    mock_logger, tmp_path, mocker
+):
+    """Test that credentials_path takes priority over credentials
+    parameter."""
     creds_file = tmp_path / "credentials.json"
     creds_file.write_text(
         """{
         "type": "service_account",
         "project_id": "test-project",
         "private_key_id": "key-id",
-        "private_key": "-----BEGIN PRIVATE KEY-----\\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC\\n-----END PRIVATE KEY-----\\n",
+        "private_key": (
+            "-----BEGIN PRIVATE KEY-----\\nMII...\\n-----END PRIVATE KEY-----\\n"
+        ),
         "client_email": "test@test-project.iam.gserviceaccount.com",
         "client_id": "123456789",
         "auth_uri": "https://accounts.google.com/o/oauth2/auth",
         "token_uri": "https://oauth2.googleapis.com/token",
         "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-        "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/test%40test-project.iam.gserviceaccount.com"
+        "client_x509_cert_url": (
+            "https://www.googleapis.com/robot/v1/metadata/x509/"
+            "test%40test-project.iam.gserviceaccount.com"
+        )
     }"""
     )
 
@@ -354,20 +413,26 @@ def test_init_credentials_path_priority_over_credentials(mock_logger, tmp_path, 
 def test_init_with_google_application_credentials_env(
     mock_logger, monkeypatch, tmp_path, mocker
 ):
-    """Test credentials detection from GOOGLE_APPLICATION_CREDENTIALS environment variable."""
+    """Test credentials detection from GOOGLE_APPLICATION_CREDENTIALS
+    environment variable."""
     creds_file = tmp_path / "credentials.json"
     creds_file.write_text(
         """{
         "type": "service_account",
         "project_id": "test-project",
         "private_key_id": "key-id",
-        "private_key": "-----BEGIN PRIVATE KEY-----\\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC\\n-----END PRIVATE KEY-----\\n",
+        "private_key": (
+            "-----BEGIN PRIVATE KEY-----\\nMII...\\n-----END PRIVATE KEY-----\\n"
+        ),
         "client_email": "test@test-project.iam.gserviceaccount.com",
         "client_id": "123456789",
         "auth_uri": "https://accounts.google.com/o/oauth2/auth",
         "token_uri": "https://oauth2.googleapis.com/token",
         "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-        "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/test%40test-project.iam.gserviceaccount.com"
+        "client_x509_cert_url": (
+            "https://www.googleapis.com/robot/v1/metadata/x509/"
+            "test%40test-project.iam.gserviceaccount.com"
+        )
     }"""
     )
 
@@ -380,7 +445,9 @@ def test_init_with_google_application_credentials_env(
     )
 
     # Mock the env helper to return the path
-    mocker.patch("app.helpers.environment.env", return_value=str(creds_file))
+    mocker.patch(
+        "app.helpers.environment.env", return_value=str(creds_file)
+    )
 
     service = ParameterManagerService(project_id="test-project")
 
@@ -428,7 +495,9 @@ def test_init_with_default_location(mock_logger):
 
 def test_init_with_regional_location(mock_logger):
     """Test initialization with regional location."""
-    service = ParameterManagerService(project_id="test-project", location="us-central1")
+    service = ParameterManagerService(
+        project_id="test-project", location="us-central1"
+    )
 
     assert service.location == "us-central1"
 
@@ -458,7 +527,9 @@ def test_init_with_cache_disabled(mock_logger):
 
 def test_init_with_cache_enabled(mock_logger):
     """Test initialization with caching enabled."""
-    service = ParameterManagerService(project_id="test-project", enable_cache=True)
+    service = ParameterManagerService(
+        project_id="test-project", enable_cache=True
+    )
 
     assert service.enable_cache is True
     assert service.cache_ttl_seconds == 300
@@ -467,7 +538,9 @@ def test_init_with_cache_enabled(mock_logger):
 def test_init_with_custom_cache_ttl(mock_logger):
     """Test initialization with custom cache TTL."""
     service = ParameterManagerService(
-        project_id="test-project", enable_cache=True, cache_ttl_seconds=600
+        project_id="test-project",
+        enable_cache=True,
+        cache_ttl_seconds=600,
     )
 
     assert service.enable_cache is True
@@ -535,7 +608,9 @@ def test_init_error_message_includes_helpful_info(
     error_msg = str(exc_info.value)
     assert "Project ID must be provided" in error_msg
     assert "GOOGLE_CLOUD_PROJECT" in error_msg
-    assert "gcloud CLI" in error_msg or "environment variable" in error_msg
+    assert (
+        "gcloud CLI" in error_msg or "environment variable" in error_msg
+    )
 
 
 def test_init_validates_configuration(mock_logger, mocker):

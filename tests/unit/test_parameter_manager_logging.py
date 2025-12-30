@@ -187,7 +187,8 @@ def test_initialization_failure_logging(mocker):
 
 
 def test_successful_create_parameter_logging(mock_service):
-    """Test that successful parameter creation is logged with proper timing and context."""
+    """Test that successful parameter creation is logged with proper timing and
+    context."""
     service, mock_logger = mock_service
 
     request = ParameterCreateRequest(parameter_name="test-param", format_type="JSON")

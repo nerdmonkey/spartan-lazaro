@@ -257,7 +257,8 @@ def test_create_and_retrieve_yaml_parameter(
 def test_version_management_workflow(
     parameter_manager_service, test_parameter_name, cleanup_parameters
 ):
-    """Test version management: create, add versions, list, retrieve specific versions."""
+    """Test version management: create, add versions, list, retrieve specific
+    versions."""
     cleanup_parameters.append(test_parameter_name)
 
     # Create initial parameter
@@ -798,7 +799,10 @@ def test_secret_reference_resolution_integration(
         secret_service.add_secret_version(test_secret_name, test_secret_value)
 
         # Create a parameter with a secret reference
-        secret_reference = f"${{secret.projects/{project_id}/secrets/{test_secret_name}/versions/latest}}"
+        secret_reference = (
+            f"${{secret.projects/{project_id}/secrets/"
+            f"{test_secret_name}/versions/latest}}"
+        )
         param_value = f"database_password={secret_reference}"
 
         create_request = ParameterCreateRequest(

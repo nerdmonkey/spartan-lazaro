@@ -3695,9 +3695,10 @@ class ParameterManagerService:
         """
         import re
 
-        # Pattern to match secret references: ${secret.projects/PROJECT_ID/secrets/SECRET_NAME/versions/VERSION}
         # Pattern to match secret references:
         # ${secret.projects/PROJECT_ID/secrets/SECRET_NAME/versions/VERSION}
+        secret_pattern = r"\$\{secret\.(projects/[^/]+/secrets/[^/]+/versions/[^}]+)\}"
+
         # Find all secret references
         matches = re.finditer(secret_pattern, parameter_value)
 

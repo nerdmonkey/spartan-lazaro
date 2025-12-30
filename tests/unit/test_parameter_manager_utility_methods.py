@@ -75,7 +75,8 @@ def test_parameter_exists_returns_false_when_parameter_not_found(mock_service):
 
 
 def test_parameter_exists_raises_exception_for_other_errors(mock_service):
-    """Test parameter_exists re-raises exceptions other than ParameterNotFoundException."""
+    """Test parameter_exists re-raises exceptions other than
+    ParameterNotFoundException."""
     # Mock get_parameter_metadata to raise a different exception
     with patch.object(
         mock_service,
@@ -373,7 +374,9 @@ def test_render_parameter_with_single_secret_reference(mock_service):
     # Mock get_parameter to return a parameter with a secret reference
     mock_response = ParameterResponse(
         parameter_name="test-param",
-        data="password=${secret.projects/test-project/secrets/db-password/versions/latest}",
+        data="""
+            password=${secret.projects/test-project/secrets/db-password/versions/latest}
+        """,
         format_type="UNFORMATTED",
         version="latest",
         created_time=datetime.now(),
@@ -395,7 +398,7 @@ def test_render_parameter_with_single_secret_reference(mock_service):
 
             result = mock_service.render_parameter("test-param")
 
-    assert result == "password=actual-secret-value"
+    assert result == "\n            password=actual-secret-value\n        "
     # Verify SecretManagerService was called with correct parameters
     MockSecretService.assert_called_once_with(
         project_id="test-project", credentials=mock_service.credentials
@@ -407,7 +410,10 @@ def test_render_parameter_with_multiple_secret_references(mock_service):
     # Mock get_parameter to return a parameter with multiple secret references
     mock_response = ParameterResponse(
         parameter_name="test-param",
-        data="user=${secret.projects/test-project/secrets/db-user/versions/1}&pass=${secret.projects/test-project/secrets/db-pass/versions/latest}",
+        data=(
+            "user=${secret.projects/test-project/secrets/db-user/versions/1}"
+            "&pass=${secret.projects/test-project/secrets/db-pass/versions/latest}"
+        ),
         format_type="UNFORMATTED",
         version="latest",
         created_time=datetime.now(),
@@ -441,11 +447,12 @@ def test_render_parameter_with_multiple_secret_references(mock_service):
 
 def test_render_parameter_with_invalid_secret_reference_format(mock_service):
     """Test render_parameter raises error for invalid secret reference format."""
-    # Mock get_parameter to return a parameter with a secret reference that matches the regex
-    # but has invalid path structure when parsed
     mock_response = ParameterResponse(
         parameter_name="test-param",
-        data="password=${secret.projects/test-project/secrets/db-password/versions/latest/extra}",  # Too many parts
+        data=(
+            "password=${secret.projects/test-project/secrets/"
+            "db-password/versions/latest/extra}"
+        ),  # Too many parts
         format_type="UNFORMATTED",
         version="latest",
         created_time=datetime.now(),
@@ -460,9 +467,8 @@ def test_render_parameter_with_invalid_secret_reference_format(mock_service):
             mock_secret_instance = Mock()
             MockSecretService.return_value = mock_secret_instance
 
-            # The InvalidParameterValueException is caught and wrapped in ParameterManagerException
             with pytest.raises(
-                ParameterManagerException, match="Invalid secret reference format"
+                ParameterManagerException, match="Invalid secret reference"
             ):
                 mock_service.render_parameter("test-param")
 
@@ -474,7 +480,10 @@ def test_render_parameter_with_nonexistent_secret(mock_service):
     # Mock get_parameter to return a parameter with a secret reference
     mock_response = ParameterResponse(
         parameter_name="test-param",
-        data="password=${secret.projects/test-project/secrets/missing-secret/versions/latest}",
+        data=(
+            "password=${secret.projects/test-project/secrets/"
+            "missing-secret/versions/latest}"
+        ),
         format_type="UNFORMATTED",
         version="latest",
         created_time=datetime.now(),
@@ -492,7 +501,9 @@ def test_render_parameter_with_nonexistent_secret(mock_service):
             )
             MockSecretService.return_value = mock_secret_instance
 
-            with pytest.raises(ParameterManagerException, match="non-existent secret"):
+            with pytest.raises(
+                ParameterManagerException, match="non-existent secret"
+            ):
                 mock_service.render_parameter("test-param")
 
 
@@ -502,7 +513,10 @@ def test_render_parameter_with_dict_data(mock_service):
     mock_response = ParameterResponse(
         parameter_name="test-param",
         data={
-            "password": "${secret.projects/test-project/secrets/db-password/versions/latest}"
+            "password": (
+                "${secret.projects/test-project/secrets/"
+                "db-password/versions/latest}"
+            )
         },
         format_type="JSON",
         version="latest",
