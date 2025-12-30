@@ -434,7 +434,7 @@ class ParameterManagerService:
                 },
             )
             raise ParameterManagerException(
-                f"Failed to load credentials from file {credentials_path}: " f"{str(e)}"
+                f"Failed to load credentials from file {credentials_path}: {str(e)}"
             )
 
     def _load_credentials_from_json(self, credentials: str) -> Credentials:
@@ -799,8 +799,8 @@ class ParameterManagerService:
 
         This method removes all entries from the in-memory cache. This is useful when
         you need to force fresh retrieval of all parameters, such as after a bulk update
-        operation or when you suspect cached data may be stale. If caching is not enabled,
-        this method has no effect.
+        operation or when you suspect cached data may be stale.
+        If caching is not enabled, this method has no effect.
 
         Note:
             - Only affects the local cache; does not modify parameters in Google Cloud
@@ -838,9 +838,9 @@ class ParameterManagerService:
         """
         Get cache statistics.
 
-        This method returns information about the current state of the cache, including the
-        number of cached entries, expired entries, and cache configuration. This is useful
-        for monitoring cache effectiveness and debugging cache-related issues.
+        This method returns information about the current state of the cache, including
+        the number of cached entries, expired entries, and cache configuration. This is
+        useful for monitoring cache effectiveness and debugging cache-related issues.
 
         Returns:
             Dictionary containing cache statistics:
@@ -857,7 +857,9 @@ class ParameterManagerService:
             - Active entries are those that haven't expired yet
 
         Example:
-            >>> service = ParameterManagerService(enable_cache=True, cache_ttl_seconds=300)
+            >>> service = ParameterManagerService(
+            ...     enable_cache=True, cache_ttl_seconds=300
+            ... )
             >>> service.get_parameter("app-config")
             >>> service.get_parameter("database-url")
             >>>
@@ -893,8 +895,8 @@ class ParameterManagerService:
         """Map NotFound exception to appropriate custom exception."""
         if version:
             return ParameterVersionNotFoundException(
-                f"Parameter '{parameter_name}' version '{version}' not found in project "
-                f"'{self.project_id}' location '{self.location}'"
+                f"Parameter '{parameter_name}' version '{version}' not found "
+                f"in project '{self.project_id}' location '{self.location}'"
             )
         else:
             return ParameterNotFoundException(
@@ -949,14 +951,16 @@ class ParameterManagerService:
         """
         Map Google Cloud API exceptions to custom Parameter Manager exceptions.
 
-        This method provides comprehensive error mapping from Google Cloud API exceptions
-        to framework-specific exceptions with enhanced context and logging. It handles
+        This method provides comprehensive error mapping from Google Cloud API
+        exceptions to framework-specific exceptions with enhanced context and
+        logging. It handles
         various error scenarios including authentication, authorization, network issues,
         quota limits, and service availability.
 
         Args:
             e: The original Google Cloud exception or any other exception
-            operation: Description of the operation that failed (e.g., "parameter creation")
+            operation: Description of the operation that failed
+                (e.g., "parameter creation")
             context: Additional context information (parameter_name, version, etc.)
 
         Returns:
@@ -1115,7 +1119,8 @@ class ParameterManagerService:
         """Map service unavailable exceptions."""
         return ParameterUnavailableException(
             f"Service unavailable during {operation}: {error_msg}. "
-            f"Please retry the operation. If the issue persists, check Google Cloud status."
+            f"Please retry the operation. If the issue persists, "
+            f"check Google Cloud status."
         )
 
     def _map_internal_exception(
@@ -1141,7 +1146,8 @@ class ParameterManagerService:
         if "Retry" in error_msg or "retry" in error_msg:
             return ParameterConnectionException(
                 f"Retry limit exceeded during {operation}: {error_msg}. "
-                f"Network connectivity issue detected. Check your network connection and try again."
+                f"Network connectivity issue detected. "
+                f"Check your network connection and try again."
             )
         return ParameterConnectionException(
             f"Network connectivity issue during {operation}: {error_msg}. "
@@ -1155,7 +1161,8 @@ class ParameterManagerService:
         if isinstance(e, gcp_exceptions.MethodNotImplemented):
             return ParameterManagerException(
                 f"Method not implemented for {operation}: {error_msg}. "
-                f"Please check if this feature is supported by Google Cloud Parameter Manager."
+                f"Please check if this feature is supported by "
+                f"Google Cloud Parameter Manager."
             )
         if isinstance(e, (gcp_exceptions.Aborted, gcp_exceptions.Unknown)):
             return ParameterManagerException(
@@ -1342,7 +1349,8 @@ class ParameterManagerService:
                     },
                 )
                 raise InvalidParameterValueException(
-                    f"Invalid JSON format: {str(e)} at line {e.lineno}, column {e.colno}"
+                    f"Invalid JSON format: {str(e)} at line {e.lineno}, "
+                    f"column {e.colno}"
                 )
         else:
             self.logger.error(
@@ -1493,8 +1501,9 @@ class ParameterManagerService:
                     },
                 )
                 raise InvalidParameterValueException(
-                    f"Parameter data size ({len(data_bytes)} bytes) exceeds 1 MiB limit (1,048,576 bytes). "
-                    f"Exceeded by {len(data_bytes) - 1_048_576} bytes."
+                    f"Parameter data size ({len(data_bytes)} bytes) "
+                    f"exceeds 1 MiB limit (1,048,576 bytes). Exceeded by "
+                    f"{len(data_bytes) - 1_048_576} bytes."
                 )
 
             self.logger.debug(
@@ -1630,8 +1639,8 @@ class ParameterManagerService:
         Create a new parameter in Google Cloud Parameter Manager.
 
         This method creates a new parameter resource with the specified format type.
-        The parameter name must be unique within the project and location. Labels can be used
-        to organize and categorize parameters for easier management.
+        The parameter name must be unique within the project and location. Labels can be
+        used to organize and categorize parameters for easier management.
 
         Args:
             request: ParameterCreateRequest containing:
@@ -1646,7 +1655,8 @@ class ParameterManagerService:
                 - format_type: The format type of the parameter
 
         Raises:
-            ParameterManagerException: If parameter creation fails or parameter already exists
+            ParameterManagerException: If parameter creation fails or parameter already
+            exists
             InvalidParameterNameException: If parameter name is invalid
             ParameterAccessDeniedException: If credentials lack necessary permissions
 
@@ -1718,14 +1728,16 @@ class ParameterManagerService:
 
         This method retrieves the data of a parameter. By default, it returns the latest
         version. You can specify a specific version name to retrieve historical values.
-        If caching is enabled, frequently accessed parameters will be served from cache to
-        improve performance.
+        If caching is enabled, frequently accessed parameters will be served from cache
+        to improve performance.
 
         Args:
-            parameter_name: Name of the parameter to retrieve (must exist in the project/location)
+            parameter_name: Name of the parameter to retrieve
+                (must exist in the project/location)
             version: Version identifier to retrieve. Options:
                 - None (default): Returns the most recent version
-                - Specific version name (e.g., "v1", "prod-2024"): Returns that exact version
+                - Specific version name (e.g., "v1", "prod-2024"):
+                  Returns that exact version
 
         Returns:
             ParameterResponse containing:
@@ -1738,7 +1750,8 @@ class ParameterManagerService:
                 - labels: Optional labels for organization
 
         Raises:
-            ParameterNotFoundException: If the parameter or specified version does not exist
+            ParameterNotFoundException: If the parameter or specified version does not
+            exist
             ParameterVersionNotFoundException: If the version is not found
             ParameterAccessDeniedException: If credentials lack read permissions
             ParameterManagerException: If retrieval fails for other reasons
@@ -1785,8 +1798,12 @@ class ParameterManagerService:
             # TODO: Implement actual Parameter Manager API call
             # Example structure:
             # if version:
-            #     version_path = self._get_parameter_version_path(parameter_name, version)
-            #     response = self.client.get_parameter_version(request={"name": version_path})
+            #     version_path = self._get_parameter_version_path(
+            #         parameter_name, version
+            #     )
+            #     response = self.client.get_parameter_version(
+            #         request={"name": version_path}
+            #     )
             # else:
             #     parameter_path = self._get_parameter_path(parameter_name)
             #     response = self.client.get_parameter(request={"name": parameter_path})
@@ -1839,10 +1856,10 @@ class ParameterManagerService:
         """
         Create a new version of an existing parameter with a custom version name.
 
-        This method creates a new version of a parameter while preserving all previous versions.
-        Unlike auto-incrementing version numbers, Parameter Manager allows custom version names
-        (e.g., "v1", "prod-2024", "staging-config") for better semantic versioning. The version
-        name must be unique within the parameter.
+        This method creates a new version of a parameter while preserving all previous
+        versions. Unlike auto-incrementing version numbers, Parameter Manager allows
+        custom version names (e.g., "v1", "prod-2024", "staging-config") for better
+        semantic versioning. The version name must be unique within the parameter.
 
         Args:
             parameter_name: Name of the existing parameter (must already exist)
@@ -1968,9 +1985,11 @@ class ParameterManagerService:
         """
         List all versions of a parameter in chronological order.
 
-        This method retrieves metadata for all versions of a parameter, including version names,
-        creation times, and format types. Versions are returned in chronological order (oldest
-        first). The results are paginated to handle parameters with many versions efficiently.
+        This method retrieves metadata for all versions of a parameter,
+        including version
+        names, creation times, and format types. Versions are returned in chronological
+        order (oldest first). The results are paginated to handle parameters with many
+        versions efficiently.
 
         Args:
             parameter_name: Name of the parameter whose versions to list (must exist)
@@ -2080,15 +2099,16 @@ class ParameterManagerService:
         """
         Retrieve a specific version of a parameter by version name.
 
-        This method retrieves the data and metadata for a specific version of a parameter.
+        This method retrieves the data and metadata for a specific version of
+        a parameter.
         Unlike get_parameter() which returns the latest version by default, this method
-        requires an explicit version name and returns exactly that version. This is useful
-        for accessing historical configurations or comparing different versions.
+        requires an explicit version name and returns exactly that version. This is
+        useful for accessing historical configurations or comparing different versions.
 
         Args:
             parameter_name: Name of the parameter (must exist in the project/location)
             version: The specific version name to retrieve (e.g., "v1", "prod-2024")
-                    Must be an exact match to an existing version name
+                Must be an exact match to an existing version name
 
         Returns:
             ParameterResponse containing:
@@ -2125,10 +2145,14 @@ class ParameterManagerService:
         """
         Delete a specific version of a parameter.
 
-        This method removes a specific version of a parameter while preserving other versions.
-        The parameter itself remains intact with its other versions. This is useful for cleaning
-        up old or incorrect versions while maintaining version history. Note that you cannot
-        delete the only remaining version of a parameter; use delete_parameter() instead.
+        This method removes a specific version of a parameter while preserving
+        other versions.
+        The parameter itself remains intact with its other versions. This is
+        useful for cleaning
+        up old or incorrect versions while maintaining version history. Note that
+        you cannot
+        delete the only remaining version of a parameter; use delete_parameter()
+        instead.
 
         Args:
             parameter_name: Name of the parameter (must exist in the project/location)
@@ -2189,7 +2213,10 @@ class ParameterManagerService:
 
             response = ParameterOperationResponse(
                 success=True,
-                message=f"Successfully deleted version '{version}' of parameter '{parameter_name}'",
+                message=(
+                    f"Successfully deleted version '{version}' of parameter "
+                    f"'{parameter_name}'"
+                ),
                 operation_time=datetime.now(),
             )
 
@@ -2222,9 +2249,12 @@ class ParameterManagerService:
         """
         List all parameters in the project and location with optional filtering.
 
-        This method retrieves metadata for all parameters in the configured project and location.
-        Results can be filtered using filter expressions and are paginated for efficient handling
-        of large parameter collections. The method returns metadata only (no parameter data) to
+        This method retrieves metadata for all parameters in the configured
+        project and location.
+        Results can be filtered using filter expressions and are paginated for
+        efficient handling
+        of large parameter collections. The method returns metadata only
+        (no parameter data) to
         minimize response size and improve performance.
 
         Args:
@@ -2352,13 +2382,14 @@ class ParameterManagerService:
         """
         Delete a parameter and all its versions.
 
-        This method permanently removes a parameter and all of its versions from Google Cloud
-        Parameter Manager. This operation cannot be undone. Use with caution, especially in
-        production environments. Consider using delete_parameter_version() if you only need
-        to remove specific versions.
+        This method permanently removes a parameter and all of its versions from Google
+        Cloud Parameter Manager. This operation cannot be undone. Use with caution,
+        especially in production environments. Consider using delete_parameter_version()
+        if you only need to remove specific versions.
 
         Args:
-            parameter_name: Name of the parameter to delete (must exist in the project/location)
+            parameter_name: Name of the parameter to delete
+                (must exist in the project/location)
                            All versions of this parameter will be deleted
 
         Returns:
@@ -2414,7 +2445,10 @@ class ParameterManagerService:
 
             response = ParameterOperationResponse(
                 success=True,
-                message=f"Successfully deleted parameter '{parameter_name}' and all its versions",
+                message=(
+                    f"Successfully deleted parameter '{parameter_name}' "
+                    f"and all its versions"
+                ),
                 operation_time=datetime.now(),
             )
 
@@ -2442,9 +2476,12 @@ class ParameterManagerService:
         """
         Get metadata for a parameter without retrieving its data.
 
-        This method retrieves only the metadata for a parameter (format type, labels, version
-        count, timestamps) without fetching the actual parameter data. This is more efficient
-        than get_parameter() when you only need metadata, as it avoids transferring potentially
+        This method retrieves only the metadata for a parameter (format type,
+        labels, version
+        count, timestamps) without fetching the actual parameter data. This is
+        more efficient
+        than get_parameter() when you only need metadata, as it avoids
+        transferring potentially
         large parameter values over the network.
 
         Args:
@@ -2537,9 +2574,9 @@ class ParameterManagerService:
         """
         Check if a parameter exists.
 
-        This method provides a simple boolean check for parameter existence without retrieving
-        any data or metadata. It's more efficient than get_parameter() or get_parameter_metadata()
-        when you only need to verify existence.
+        This method provides a simple boolean check for parameter existence without
+        retrieving any data or metadata. It's more efficient than get_parameter() or
+        get_parameter_metadata() when you only need to verify existence.
 
         Args:
             parameter_name: Name of the parameter to check
@@ -2583,7 +2620,8 @@ class ParameterManagerService:
         ):
             raise InvalidParameterValueException(
                 f"Invalid secret reference format: {secret_path}. "
-                f"Expected format: projects/PROJECT_ID/secrets/SECRET_NAME/versions/VERSION"
+                f"Expected format: "
+                f"projects/PROJECT_ID/secrets/SECRET_NAME/versions/VERSION"
             )
 
         secret_name = path_parts[3]
@@ -2675,23 +2713,28 @@ class ParameterManagerService:
         Secret Manager secret references. Secret references use the syntax:
         ${secret.projects/PROJECT_ID/secrets/SECRET_NAME/versions/VERSION}
 
-        The method supports multiple secret references within a single parameter value and
-        handles both simple text replacement and structured data formats (JSON, YAML).
+        The method supports multiple secret references within a single parameter value
+        and handles both simple text replacement and structured data formats
+        (JSON, YAML).
 
         Args:
             parameter_name: Name of the parameter to retrieve and render (must exist)
             version: Version identifier to retrieve. Options:
                 - None (default): Returns the most recent version
-                - Specific version name (e.g., "v1", "prod-2024"): Returns that exact version
+                - Specific version name (e.g., "v1", "prod-2024"):
+                  Returns that exact version
 
         Returns:
             Rendered parameter value as a string with all secret references resolved to
-            their actual secret values. For structured formats (JSON, YAML), the returned
+            their actual secret values. For structured formats (JSON, YAML),
+            the returned
             string will be the serialized form with secrets resolved.
 
         Raises:
-            ParameterNotFoundException: If the parameter or specified version does not exist
-            ParameterAccessDeniedException: If credentials lack read permissions for parameter
+            ParameterNotFoundException: If the parameter or specified version
+            does not exist
+            ParameterAccessDeniedException: If credentials lack read permissions
+            for parameter
             InvalidParameterValueException: If secret reference syntax is invalid
             ParameterManagerException: If secret resolution fails or retrieval fails
 
@@ -2699,15 +2742,20 @@ class ParameterManagerService:
             >>> service = ParameterManagerService()
             >>>
             >>> # Parameter with secret reference:
-            >>> # "database_url=postgresql://user:${secret.projects/my-project/secrets/db-password/versions/latest}@localhost/db"
+            >>> # "database_url=postgresql://user:"
+            >>> # "${secret.projects/my-project/secrets/db-password/versions/latest}"
+            >>> # "@localhost/db"
             >>>
             >>> # Render the parameter (resolves secret reference)
             >>> rendered = service.render_parameter("database-config")
             >>> print(rendered)
-            >>> # Output: "database_url=postgresql://user:actual-secret-value@localhost/db"
+            >>> # Output: "database_url=postgresql://user:actual-secret-value"
+            >>> # "@localhost/db"
             >>>
             >>> # Parameter with multiple secret references
-            >>> # "api_key=${secret.projects/my-project/secrets/api-key/versions/1}&secret=${secret.projects/my-project/secrets/api-secret/versions/latest}"
+            >>> # "api_key=${secret.projects/my-project/secrets/api-key/versions/1}"
+            >>> # "&secret=${secret.projects/my-project/secrets/"
+            >>> # "api-secret/versions/latest}"
             >>> rendered = service.render_parameter("api-config")
             >>> print(rendered)
             >>> # Output: "api_key=actual-key-value&secret=actual-secret-value"
@@ -2717,8 +2765,10 @@ class ParameterManagerService:
 
         Note:
             - Secret references must follow the exact syntax: ${secret.FULL_SECRET_PATH}
-            - The secret path must include: projects/PROJECT_ID/secrets/SECRET_NAME/versions/VERSION
-            - If a secret reference is invalid or the secret doesn't exist, an exception is raised
+            - The secret path must include:
+              projects/PROJECT_ID/secrets/SECRET_NAME/versions/VERSION
+            - If a secret reference is invalid or the secret doesn't exist,
+              an exception is raised
             - The method requires both Parameter Manager and Secret Manager permissions
             - Secret values are retrieved using the Secret Manager service
         """
@@ -2866,7 +2916,8 @@ class ParameterManagerService:
 
         Note:
             - Parameters that don't exist will have None as their value in the result
-            - Errors for individual parameters are logged but don't fail the entire batch
+            - Errors for individual parameters are logged but don't fail the
+              entire batch
             - Cache hits are tracked separately in batch statistics
             - Empty parameter_names list returns empty results
 
@@ -3014,18 +3065,21 @@ class ParameterManagerService:
         """
         Create multiple parameters in a single batch operation.
 
-        This method efficiently creates multiple parameters by processing them in sequence
-        with optimized error handling. Each parameter is created independently, so failures
-        for individual parameters don't affect the creation of others. This is useful for
-        initial setup or bulk configuration updates.
+        This method efficiently creates multiple parameters by processing them in
+        sequence with optimized error handling. Each parameter is created
+        independently, so failures for individual parameters don't affect the
+        creation of others. This is useful for initial setup or bulk configuration
+        updates.
 
         Args:
             parameters: List of parameter specifications, each containing:
                 - parameter_name: Name of the parameter to create (required)
-                - format_type: Data format (UNFORMATTED, JSON, YAML) (optional, default: UNFORMATTED)
+                - format_type: Data format (UNFORMATTED, JSON, YAML)
+                  (optional, default: UNFORMATTED)
                 - labels: Optional labels for organization (optional)
                 - initial_data: Optional initial data for first version (optional)
-                - initial_version_name: Optional name for first version (optional, default: "v1")
+                - initial_version_name: Optional name for first version
+                  (optional, default: "v1")
 
         Returns:
             Dictionary containing batch operation results:
@@ -3063,7 +3117,9 @@ class ParameterManagerService:
             ...     }
             ... ]
             >>> results = service.create_parameters_batch(params)
-            >>> print(f"Created: {results['success_count']}/{results['total_requested']}")
+            >>> print(
+            ...     f"Created: {results['success_count']}/{results['total_requested']}"
+            ... )
             >>> for param_name in results['successful']:
             ...     print(f"✓ {param_name}")
             >>> for failure in results['failed']:
@@ -3171,9 +3227,11 @@ class ParameterManagerService:
         """
         Delete multiple parameters in a single batch operation.
 
-        This method efficiently deletes multiple parameters by processing them in sequence
+        This method efficiently deletes multiple parameters by processing them
+        in sequence
         with optimized error handling and cache invalidation. Each parameter is deleted
-        independently, so failures for individual parameters don't affect the deletion of
+        independently, so failures for individual parameters don't affect the
+        deletion of
         others. All versions of each parameter are deleted.
 
         Args:
@@ -3203,11 +3261,16 @@ class ParameterManagerService:
             >>> # Delete multiple old parameters
             >>> old_params = ["old-config-1", "old-config-2", "deprecated-setting"]
             >>> results = service.delete_parameters_batch(old_params)
-            >>> print(f"Deleted: {results['success_count']}/{results['total_requested']}")
+            >>> print(
+            ...     f"Deleted: {results['success_count']}/{results['total_requested']}"
+            ... )
             >>> for param_name in results['successful']:
             ...     print(f"✓ Deleted {param_name}")
             >>> for failure in results['failed']:
-            ...     print(f"✗ Failed to delete {failure['parameter_name']}: {failure['error']}")
+            ...     print(
+            ...         f"✗ Failed to delete {failure['parameter_name']}: "
+            ...         f"{failure['error']}"
+            ...     )
         """
         operation = "batch parameter deletion"
         start_time = self._log_operation_start(
@@ -3584,7 +3647,8 @@ class ParameterManagerService:
         """
         Parse and extract secret references from a parameter value.
 
-        This helper method identifies and extracts all Secret Manager secret references
+        This helper method identifies and extracts all Secret Manager secret
+        references
         from a parameter value string. Secret references use the syntax:
         ${secret.projects/PROJECT_ID/secrets/SECRET_NAME/versions/VERSION}
 
@@ -3593,12 +3657,15 @@ class ParameterManagerService:
         parameter values before storage or for analyzing secret dependencies.
 
         Args:
-            parameter_value: Parameter value string that may contain secret references
+            parameter_value: Parameter value string that may contain secret
+            references
 
         Returns:
             List of dictionaries, each containing:
-                - full_reference: The complete reference string including ${secret. ... }
-                - secret_path: The path portion (projects/PROJECT_ID/secrets/SECRET_NAME/versions/VERSION)
+                 - full_reference: The complete reference string including
+                   ${secret. ... }
+                 - secret_path: The path portion
+                   (projects/PROJECT_ID/secrets/SECRET_NAME/versions/VERSION)
                 - project_id: The Google Cloud project ID
                 - secret_name: The name of the secret
                 - version: The version identifier (e.g., "latest", "1", "v1")
@@ -3607,14 +3674,21 @@ class ParameterManagerService:
         Example:
             >>> service = ParameterManagerService()
             >>> # Parse parameter with secret references
-            >>> param_value = "db_url=postgresql://user:${secret.projects/my-project/secrets/db-password/versions/latest}@localhost/db"
+            >>> param_value = (
+            ...     "db_url=postgresql://user:"
+            ...     "${secret.projects/my-project/secrets/db-password/versions/latest}"
+            ...     "@localhost/db"
+            ... )
             >>> references = service.parse_secret_references(param_value)
             >>> for ref in references:
             ...     print(f"Secret: {ref['secret_name']}, Version: {ref['version']}")
             >>> # Output: Secret: db-password, Version: latest
             >>>
             >>> # Parse parameter with multiple references
-            >>> param_value = "key=${secret.projects/proj/secrets/api-key/versions/1}&secret=${secret.projects/proj/secrets/api-secret/versions/2}"
+            >>> param_value = (
+            ...     "key=${secret.projects/proj/secrets/api-key/versions/1}"
+            ...     "&secret=${secret.projects/proj/secrets/api-secret/versions/2}"
+            ... )
             >>> references = service.parse_secret_references(param_value)
             >>> print(f"Found {len(references)} secret references")
             >>> # Output: Found 2 secret references
@@ -3622,8 +3696,8 @@ class ParameterManagerService:
         import re
 
         # Pattern to match secret references: ${secret.projects/PROJECT_ID/secrets/SECRET_NAME/versions/VERSION}
-        secret_pattern = r"\$\{secret\.(projects/[^/]+/secrets/[^/]+/versions/[^}]+)\}"
-
+        # Pattern to match secret references:
+        # ${secret.projects/PROJECT_ID/secrets/SECRET_NAME/versions/VERSION}
         # Find all secret references
         matches = re.finditer(secret_pattern, parameter_value)
 
@@ -3694,8 +3768,9 @@ class ParameterManagerService:
         Validate all secret references in a parameter value.
 
         This helper method checks if all secret references in a parameter value have
-        valid syntax. It parses the references and returns a validation report indicating
-        whether all references are valid and providing details about any invalid references.
+        valid syntax. It parses the references and returns a validation report
+        indicating whether all references are valid and providing details about any
+        invalid references.
 
         This is useful for validating parameter values before storage to ensure they
         can be successfully rendered later.
@@ -3717,7 +3792,9 @@ class ParameterManagerService:
         Example:
             >>> service = ParameterManagerService()
             >>> # Validate parameter with valid references
-            >>> param_value = "key=${secret.projects/my-project/secrets/api-key/versions/1}"
+            >>> param_value = (
+            ...     "key=${secret.projects/my-project/secrets/api-key/versions/1}"
+            ... )
             >>> result = service.validate_secret_references(param_value)
             >>> print(f"Valid: {result['is_valid']}")
             >>> # Output: Valid: True
@@ -3738,7 +3815,10 @@ class ParameterManagerService:
             {
                 "full_reference": r["full_reference"],
                 "secret_path": r["secret_path"],
-                "error": "Invalid secret reference format. Expected: projects/PROJECT_ID/secrets/SECRET_NAME/versions/VERSION",
+                "error": (
+                    "Invalid secret reference format. Expected: "
+                    "projects/PROJECT_ID/secrets/SECRET_NAME/versions/VERSION"
+                ),
             }
             for r in references
             if not r["is_valid"]
@@ -3805,7 +3885,9 @@ class ParameterManagerService:
         Example:
             >>> service = ParameterManagerService()
             >>> # Check parameter with secret reference
-            >>> param_value = "key=${secret.projects/my-project/secrets/api-key/versions/1}"
+            >>> param_value = (
+            ...     "key=${secret.projects/my-project/secrets/api-key/versions/1}"
+            ... )
             >>> has_secrets = service.has_secret_references(param_value)
             >>> print(f"Has secrets: {has_secrets}")
             >>> # Output: Has secrets: True
