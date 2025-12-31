@@ -12,7 +12,7 @@ def main(cloud_event: CloudEvent) -> None:
 
         # Process event
         logger.info(
-            "Spartan Received Cloud Event",
+            "Spartan Received Cloud Event - Lazaro Validator",
             extra={
                 "event_type": cloud_event["type"],
                 "event_source": cloud_event["source"],
