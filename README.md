@@ -1,25 +1,35 @@
-<p align="center"><img src="docs/ssf_banner.png" alt="Social Card of Spartan"></p>
 
-# Spartan Serverless Framework
+<p align="center"><img src="docs/ssf_banner.png" alt="Lazaro - Based on Spartan Serverless Framework"></p>
+
+# Lazaro
+
 
 ## About
-**Spartan Serverless Framework**—"the Swiss Army knife for serverless development"—is a powerful scaffold that simplifies the creation of serverless applications on Google Cloud Platform (GCP). It streamlines your development process and ensures code consistency, allowing you to build scalable and efficient applications on GCP with ease.
+**Lazaro** is a modern, extensible, and opinionated serverless framework for building scalable cloud-native applications with Python. Lazaro is based on the Spartan Serverless Framework, inheriting its robust architecture and best practices, while introducing new features and branding.
 
-#### Spartan Serverless Framework is versatile and can be used to efficiently develop:
-- RESTful API
+**Note:** While Lazaro is based on Spartan Serverless Framework, it is designed specifically for use on Google Cloud Platform (GCP) only. Support for other cloud providers has been removed to focus on providing the best possible experience and integration with GCP services.
+
+Lazaro streamlines your development process and ensures code consistency, allowing you to build scalable and efficient applications on GCP with ease.
+
+
+#### Lazaro is versatile and can be used to efficiently develop:
+- RESTful APIs
 - Cloud Functions and Event-driven workflows
 - Small or Medium-sized ETL Pipelines
 - Containerized Microservices on Cloud Run
 - Pub/Sub message processing
 - Agentic AI (Coming Soon)
 
-Fully tested on Google Cloud Platform, Spartan Serverless Framework is also compatible with other cloud providers like AWS and Azure, making it a flexible choice for a wide range of serverless applications.
 
----
+
+Lazaro is fully tested and optimized for Google Cloud Platform, making it the ideal choice for serverless applications on GCP.
+
+
 
 ## Installation & Usage
 
-1. **Install the Spartan CLI tool:**
+
+1. **Install Lazaro (based on Spartan):**
 ```bash
 pip install python-spartan
 ```
@@ -78,6 +88,7 @@ copy .env.example .env  # PowerShell
 copy .env.example .env  # CMD
 ```
 
+
 5. **Run database migration:**
 ```bash
 spartan migrate init -d sqlite
@@ -123,20 +134,21 @@ curl -X POST localhost:8080 \
 }'
 ```
 
+
 ### Deploy to Google Cloud Functions
 
 Deploy your function to GCP:
 
 ```bash
 # Deploy as HTTP function
-gcloud functions deploy spartan-function \
+gcloud functions deploy lazaro-function \
   --runtime python311 \
   --trigger-http \
   --entry-point main \
   --allow-unauthenticated
 
 # Deploy as Pub/Sub triggered function
-gcloud functions deploy spartan-function \
+gcloud functions deploy lazaro-function \
   --runtime python311 \
   --trigger-topic my-topic \
   --entry-point main
@@ -154,11 +166,17 @@ pytest -vv
 
 ---
 
+
+## Migration from Spartan
+
+Lazaro is based on the Spartan Serverless Framework. If you are migrating from Spartan, most core concepts and APIs remain compatible. See the documentation for migration tips and new features.
+
 ## Changelog
 
 Please see [CHANGELOG](CHANGELOG.md) for recent updates.
 
 ---
+
 
 ## Contributing
 
@@ -172,12 +190,14 @@ Please review [our security policy](../../security/policy) for how to report vul
 
 ---
 
+
 ## Credits
 
 - [Sydel Palinlin](https://github.com/nerdmonkey)
 - [All Contributors](../../contributors)
 
 ---
+
 
 ## License
 
