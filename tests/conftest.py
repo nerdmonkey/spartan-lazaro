@@ -134,9 +134,14 @@ def mock_logger():
 
 
 @pytest.fixture(autouse=True)
-def _setup_testing_environment():
-    """Setup any necessary test environment variables"""
+def _setup_testing_environment(monkeypatch):
+    """Setup test environment variables to override .env"""
+    monkeypatch.setenv("STORAGE_TYPE", "local")
+    monkeypatch.setenv("APP_ENVIRONMENT", "test")
+    from app.helpers.environment import env
+    env.cache_clear()
     yield
+    env.cache_clear()
 
 
 @pytest.fixture(autouse=True)

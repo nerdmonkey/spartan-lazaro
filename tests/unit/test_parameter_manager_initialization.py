@@ -613,7 +613,7 @@ def test_init_error_message_includes_helpful_info(
     )
 
 
-def test_init_validates_configuration(mock_logger, mocker):
+def test_init_validates_configuration(mock_logger, clean_environment, mocker):
     """Test that initialization validates configuration."""
     # Test with valid configuration
     service = ParameterManagerService(project_id="valid-project")
