@@ -106,6 +106,7 @@ google-cloud = "^0.34.0"
 google-cloud-bigquery = "^3.39.0"
 google-cloud-storage = "^3.7.0"
 google-cloud-logging = "^3.13.0"
+pytest-xdist = "^3.8.0"
 
 [tool.black]
 line-length = 88
