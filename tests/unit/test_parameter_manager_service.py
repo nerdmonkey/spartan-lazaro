@@ -943,9 +943,7 @@ def test_list_parameters_with_multiple_filters(mock_service):
     """Test listing parameters with complex filter expression."""
     filter_expr = "labels.team=backend AND format=JSON"
 
-    response = mock_service.list_parameters(
-        page_size=50, filter_expression=filter_expr
-    )
+    response = mock_service.list_parameters(page_size=50, filter_expression=filter_expr)
 
     assert isinstance(response.parameters, list)
 
@@ -1261,9 +1259,7 @@ def test_list_parameters_logs_operation(mock_service):
 
     with patch.object(mock_service, "_log_operation_start") as mock_start:
         with patch.object(mock_service, "_log_operation_success") as mock_success:
-            mock_service.list_parameters(
-                page_size=50, filter_expression=filter_expr
-            )
+            mock_service.list_parameters(page_size=50, filter_expression=filter_expr)
 
             # Verify logging was called
             mock_start.assert_called_once()
@@ -1301,7 +1297,6 @@ def test_render_parameter_with_single_secret_reference(mock_service):
     mock_param_response = ParameterResponse(
         parameter_name="test-param",
         data=(
-
             "password=${secret.projects/test-project/secrets/"
             "db-password/versions/latest}"
         ),
@@ -1336,7 +1331,6 @@ def test_render_parameter_with_single_secret_reference(mock_service):
 
     assert result == "password=actual-secret-value"
     mock_secret_service.get_secret.assert_called_once_with(
-
         "db-password", version="latest"
     )
 
@@ -1459,8 +1453,7 @@ def test_render_parameter_with_json_data(mock_service):
         parameter_name="test-param",
         data={
             "password": (
-                "${secret.projects/test-project/secrets/"
-                "db-password/versions/latest}"
+                "${secret.projects/test-project/secrets/" "db-password/versions/latest}"
             )
         },
         format_type="JSON",
@@ -1503,8 +1496,7 @@ def test_render_parameter_with_specific_version(mock_service):
     mock_param_response = ParameterResponse(
         parameter_name="test-param",
         data=(
-            "password=${secret.projects/test-project/secrets/"
-            "db-password/versions/1}"
+            "password=${secret.projects/test-project/secrets/" "db-password/versions/1}"
         ),
         format_type="UNFORMATTED",
         version="v1",
@@ -1584,8 +1576,7 @@ def test_render_parameter_parses_single_secret_reference(mock_service):
 
     assert result == "api_key=secret-key-value"
     # Verify secret service was called with correct parameters
-    mock_secret_service.get_secret.assert_called_once_with(
-        "api-key", version="latest")
+    mock_secret_service.get_secret.assert_called_once_with("api-key", version="latest")
 
 
 def test_render_parameter_parses_multiple_secret_references(mock_service):
@@ -1845,13 +1836,11 @@ def test_render_parameter_with_json_containing_secrets(mock_service):
             "database": {
                 "host": "localhost",
                 "password": (
-                    "${secret.projects/test-project/secrets/"
-                    "db-pass/versions/1}"
+                    "${secret.projects/test-project/secrets/" "db-pass/versions/1}"
                 ),
             },
             "api_key": (
-                "${secret.projects/test-project/secrets/"
-                "api-key/versions/latest}"
+                "${secret.projects/test-project/secrets/" "api-key/versions/latest}"
             ),
         },
         format_type="JSON",
@@ -1903,9 +1892,7 @@ def test_render_parameter_with_semantic_version_names(mock_service):
     # Mock get_parameter to return a parameter with semantic version names
     mock_param_response = ParameterResponse(
         parameter_name="test-param",
-        data=(
-            "key=${secret.projects/test/secrets/api-key/versions/prod-2024-01}"
-        ),
+        data=("key=${secret.projects/test/secrets/api-key/versions/prod-2024-01}"),
         format_type="UNFORMATTED",
         version="latest",
         created_time=datetime.now(),
@@ -1936,7 +1923,6 @@ def test_render_parameter_with_semantic_version_names(mock_service):
     assert result == "key=prod-key-value"
     # Verify the semantic version was used
     mock_secret_service.get_secret.assert_called_once_with(
-
         "api-key", version="prod-2024-01"
     )
 
@@ -2075,17 +2061,9 @@ def test_render_parameter_with_same_secret_multiple_times(mock_service):
 
             result = mock_service.render_parameter("test-param")
 
-    assert (
-        result == (
-            "user=shared-value"
-            "&pass="
-            "shared-value"
-        )
-    )
+    assert result == ("user=shared-value" "&pass=" "shared-value")
     # Verify the secret was fetched for each occurrence
-    assert (
-        mock_secret_service.get_secret.call_count == 2
-    )
+    assert mock_secret_service.get_secret.call_count == 2
 
 
 def test_render_parameter_logs_secret_resolution(mock_service):

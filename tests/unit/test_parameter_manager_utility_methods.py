@@ -501,9 +501,7 @@ def test_render_parameter_with_nonexistent_secret(mock_service):
             )
             MockSecretService.return_value = mock_secret_instance
 
-            with pytest.raises(
-                ParameterManagerException, match="non-existent secret"
-            ):
+            with pytest.raises(ParameterManagerException, match="non-existent secret"):
                 mock_service.render_parameter("test-param")
 
 
@@ -514,8 +512,7 @@ def test_render_parameter_with_dict_data(mock_service):
         parameter_name="test-param",
         data={
             "password": (
-                "${secret.projects/test-project/secrets/"
-                "db-password/versions/latest}"
+                "${secret.projects/test-project/secrets/" "db-password/versions/latest}"
             )
         },
         format_type="JSON",

@@ -311,7 +311,8 @@ def test_caching_integration(project_id, test_secret_name):
         assert response1.secret_value == response2.secret_value
         assert response1.version == response2.version
 
-        # Cache hit should generally be faster (though not guaranteed in all environments)
+        # Cache hit should generally be faster (though not guaranteed in all
+        # environments)
         # We just verify both calls succeeded
         assert first_duration >= 0
         assert second_duration >= 0

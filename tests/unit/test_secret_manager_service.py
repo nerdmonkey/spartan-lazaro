@@ -122,7 +122,10 @@ def test_secret_not_found_error_mapping(mocker):
 
 
 def test_secret_not_found_for_metadata(mocker):
-    """Test that NotFound errors are properly mapped to SecretNotFoundException for metadata requests."""
+    """Test that NotFound errors are properly mapped to SecretNotFoundException.
+
+    Validates metadata requests.
+    """
     from google.api_core import exceptions as gcp_exceptions
 
     from app.exceptions.secret_manager import SecretNotFoundException
@@ -147,7 +150,10 @@ def test_secret_not_found_for_metadata(mocker):
 
 
 def test_permission_denied_error_mapping(mocker):
-    """Test that PermissionDenied errors are properly mapped to SecretAccessDeniedException."""
+    """Test that PermissionDenied errors are properly mapped.
+
+    Validates SecretAccessDeniedException mapping.
+    """
     from google.api_core import exceptions as gcp_exceptions
 
     from app.exceptions.secret_manager import SecretAccessDeniedException
@@ -171,7 +177,10 @@ def test_permission_denied_error_mapping(mocker):
 
 
 def test_quota_exceeded_error_mapping(mocker):
-    """Test that ResourceExhausted errors are properly mapped to SecretQuotaExceededException."""
+    """Test that ResourceExhausted errors are properly mapped.
+
+    Validates SecretQuotaExceededException mapping.
+    """
     from google.api_core import exceptions as gcp_exceptions
 
     from app.exceptions.secret_manager import SecretQuotaExceededException
@@ -194,7 +203,10 @@ def test_quota_exceeded_error_mapping(mocker):
 
 
 def test_timeout_error_mapping(mocker):
-    """Test that DeadlineExceeded errors are properly mapped to SecretTimeoutException."""
+    """Test that DeadlineExceeded errors are properly mapped.
+
+    Validates SecretTimeoutException mapping.
+    """
     from google.api_core import exceptions as gcp_exceptions
 
     from app.exceptions.secret_manager import SecretTimeoutException
@@ -217,7 +229,10 @@ def test_timeout_error_mapping(mocker):
 
 
 def test_service_unavailable_error_mapping(mocker):
-    """Test that ServiceUnavailable errors are properly mapped to SecretUnavailableException."""
+    """Test that ServiceUnavailable errors are properly mapped.
+
+    Validates SecretUnavailableException mapping.
+    """
     from google.api_core import exceptions as gcp_exceptions
 
     from app.exceptions.secret_manager import SecretUnavailableException
@@ -240,7 +255,10 @@ def test_service_unavailable_error_mapping(mocker):
 
 
 def test_internal_server_error_mapping(mocker):
-    """Test that InternalServerError errors are properly mapped to SecretInternalErrorException."""
+    """Test that InternalServerError errors are properly mapped.
+
+    Validates SecretInternalErrorException mapping.
+    """
     from google.api_core import exceptions as gcp_exceptions
 
     from app.exceptions.secret_manager import SecretInternalErrorException
@@ -263,7 +281,10 @@ def test_internal_server_error_mapping(mocker):
 
 
 def test_network_connectivity_error_mapping(mocker):
-    """Test that network connectivity errors are properly mapped to SecretConnectionException."""
+    """Test that network connectivity errors are properly mapped.
+
+    Validates SecretConnectionException mapping.
+    """
     from app.exceptions.secret_manager import SecretConnectionException
 
     # Mock the Secret Manager client
@@ -309,7 +330,10 @@ def test_failed_precondition_disabled_version_mapping(mocker):
 
 
 def test_invalid_argument_error_mapping(mocker):
-    """Test that InvalidArgument errors are properly mapped to SecretManagerException."""
+    """Test that InvalidArgument errors are properly mapped.
+
+    Validates SecretManagerException mapping.
+    """
     from google.api_core import exceptions as gcp_exceptions
 
     from app.exceptions.secret_manager import SecretManagerException
@@ -404,7 +428,10 @@ def test_error_context_logging(mocker):
 
 
 def test_generic_exception_mapping(mocker):
-    """Test that unexpected exceptions are properly wrapped in SecretManagerException."""
+    """Test that unexpected exceptions are properly wrapped.
+
+    Validates SecretManagerException wrapping.
+    """
     from app.exceptions.secret_manager import SecretManagerException
 
     # Mock the Secret Manager client
@@ -447,7 +474,10 @@ def test_error_mapping_preserves_original_message(mocker):
 
     from app.exceptions.secret_manager import SecretAccessDeniedException
 
-    original_message = "IAM permission 'secretmanager.versions.access' denied on resource 'projects/test/secrets/my-secret'"
+    original_message = (
+        "IAM permission 'secretmanager.versions.access' denied on resource "
+        "'projects/test/secrets/my-secret'"
+    )
 
     # Mock the Secret Manager client
     mock_client = mocker.patch(
@@ -641,7 +671,8 @@ def test_secret_values_never_logged(mocker):
                         assert (
                             value != secret_value
                         ), f"Secret value found in prohibited log field '{key}'"
-                    # For other fields, check that the secret value isn't accidentally included
+                    # For other fields, check that the secret value isn't accidentally
+                    # included
                     if (
                         len(secret_value) >= 10
                     ):  # Only check for reasonably long values to avoid false positives
@@ -651,7 +682,10 @@ def test_secret_values_never_logged(mocker):
 
 
 def test_operation_metadata_logging(mocker):
-    """Test that operation metadata is properly logged without exposing sensitive data."""
+    """Test that operation metadata is properly logged.
+
+    Ensures sensitive data is not exposed.
+    """
     # Mock the Secret Manager client
     mock_client = mocker.patch(
         "app.services.secret_manager.secretmanager.SecretManagerServiceClient"
@@ -999,7 +1033,11 @@ def test_initialization_with_service_account_file(mocker):
         "type": "service_account",
         "project_id": "sa-project-123",
         "private_key_id": "key_id",
-        "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC...\n-----END PRIVATE KEY-----\n",
+        "private_key": (
+            "-----BEGIN PRIVATE KEY-----\n"
+            "MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC...\n"
+            "-----END PRIVATE KEY-----\n"
+        ),
         "client_email": "test@sa-project-123.iam.gserviceaccount.com",
         "client_id": "123456789",
         "auth_uri": "https://accounts.google.com/o/oauth2/auth",
@@ -1054,7 +1092,11 @@ def test_initialization_with_credentials_json_string(mocker):
         "type": "service_account",
         "project_id": "json-project-456",
         "private_key_id": "key_id",
-        "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC...\n-----END PRIVATE KEY-----\n",
+        "private_key": (
+            "-----BEGIN PRIVATE KEY-----\n"
+            "MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC...\n"
+            "-----END PRIVATE KEY-----\n"
+        ),
         "client_email": "test@json-project-456.iam.gserviceaccount.com",
         "client_id": "123456789",
         "auth_uri": "https://accounts.google.com/o/oauth2/auth",
@@ -1139,7 +1181,8 @@ def test_initialization_with_framework_credentials(mocker):
         "test@framework-creds-project.iam.gserviceaccount.com"
     )
     mocker.patch(
-        "app.services.secret_manager.service_account.Credentials.from_service_account_file",
+        "app.services.secret_manager.service_account."
+        "Credentials.from_service_account_file",
         return_value=mock_credentials,
     )
 
@@ -1371,7 +1414,8 @@ def test_initialization_connection_test_permission_denied(mocker):
     mock_logger = mocker.patch("app.services.secret_manager.get_logger")
     mock_logger_instance = mock_logger.return_value
 
-    # This should not raise an exception - permission denied on list is not critical for initialization
+    # This should not raise an exception - permission denied on list is not
+    # critical for initialization
     SecretManagerService(project_id="test-project")
 
     # Verify initialization success logging includes connection test warning

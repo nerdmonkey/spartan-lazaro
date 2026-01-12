@@ -1,35 +1,43 @@
-
 <p align="center"><img src="docs/ssf_banner.png" alt="Lazaro - Based on Spartan Serverless Framework"></p>
 
 # Lazaro
 
-
 ## About
-**Lazaro** is a modern, extensible, and opinionated serverless framework for building scalable cloud-native applications with Python. Lazaro is based on the Spartan Serverless Framework, inheriting its robust architecture and best practices, while introducing new features and branding.
+Lazaro is a structured serverless framework for building scalable Python applications on Google Cloud Platform. Based on the Spartan Serverless Framework, it focuses exclusively on GCP with consistent structure and first-class integrations for APIs, event-driven workloads, and ETL pipelines.
 
-**Note:** While Lazaro is based on Spartan Serverless Framework, it is designed specifically for use on Google Cloud Platform (GCP) only. Support for other cloud providers has been removed to focus on providing the best possible experience and integration with GCP services.
+---
 
-Lazaro streamlines your development process and ensures code consistency, allowing you to build scalable and efficient applications on GCP with ease.
+## Features
 
+| **Feature Category**           | **Status**                   | **Details**                                                  |
+| ------------------------------ | ---------------------------- | ------------------------------------------------------------ |
+| **Google Functions Framework** | ✅ Excellent                  | GCP-native CloudEvent support, event-driven, typed functions |
+| **Pydantic Integration**       | ✅ Full Support               | Validation, serialization, EmailStr, type safety             |
+| **Architecture Patterns**      | ✅ Robust                     | Service + repository pattern, clean separation of concerns   |
+| **Database & ORM**             | ✅ Comprehensive              | SQLAlchemy + Alembic, seeding, multi-db support              |
+| **Testing Framework**          | ✅ Fully Integrated           | pytest, mocking, coverage tools                              |
+| **Code Quality Tools**         | ✅ Complete                   | Black, isort, flake8, mypy, bandit, pre-commit               |
+| **Development Workflow**       | ✅ Streamlined                | Poetry, Tox, environment support                             |
+| **Cloud-Native Features**      | ✅ Advanced                   | Tasks, secrets, parameter manager, multi-cloud hooks         |
+| **Observability & Monitoring** | ✅ Enterprise-Grade           | Structured logging, tracing, exception handling              |
+| **Developer Experience**       | ✅ High                       | Docker, Serverless Framework, Terraform, .env support                              |
+| **Security Best Practices**    | ✅ Strong                     | Hashing, input validation, secrets handling                  |
+| **Scalability Features**       | ✅ Built-in                   | Pagination, filtering, bulk operations                       |
+| **Logging Support**            | ✅ Advanced                   | Factory logger types (file, stream, GCP), structured output  |
+| **GCP Cloud Logging**          | ✅ Fully Integrated           | Trace context, severity levels, resource detection           |
+| **Structured Logs**            | ✅ JSON + Metadata            | PII redaction, function source, custom metadata              |
+| **Observability Hooks**        | ✅ Extensible                 | Factory patterns for loggers/tracers, sampling               |
+| **Reusability**                | ✅ High                       | Abstract base classes, reusable modules                      |
+| **Modular Architecture**       | ✅ Excellent                  | Factory design, reusable services/utilities                  |
+| **Configuration Management**   | ✅ Centralized                | Pydantic + .env + environment-detection                      |
+| **Cross-Platform Support**     | ✅ Multi-Cloud Ready          | GCP, AWS, local support via abstraction layers                |
+| **Code Consistency**           | ✅ Consistent with minor gaps | Naming conventions, model structures, unified patterns       |
 
-#### Lazaro is versatile and can be used to efficiently develop:
-- RESTful APIs
-- Cloud Functions and Event-driven workflows
-- Small or Medium-sized ETL Pipelines
-- Containerized Microservices on Cloud Run
-- Pub/Sub message processing
-- Agentic AI (Coming Soon)
-
-
-
-Lazaro is fully tested and optimized for Google Cloud Platform, making it the ideal choice for serverless applications on GCP.
-
-
+---
 
 ## Installation & Usage
 
-
-1. **Install Lazaro (based on Spartan):**
+1. **Install the Spartan CLI tool:**
 ```bash
 pip install python-spartan
 ```
@@ -88,7 +96,6 @@ copy .env.example .env  # PowerShell
 copy .env.example .env  # CMD
 ```
 
-
 5. **Run database migration:**
 ```bash
 spartan migrate init -d sqlite
@@ -134,21 +141,20 @@ curl -X POST localhost:8080 \
 }'
 ```
 
-
 ### Deploy to Google Cloud Functions
 
 Deploy your function to GCP:
 
 ```bash
 # Deploy as HTTP function
-gcloud functions deploy lazaro-function \
+gcloud functions deploy spartan-function \
   --runtime python311 \
   --trigger-http \
   --entry-point main \
   --allow-unauthenticated
 
 # Deploy as Pub/Sub triggered function
-gcloud functions deploy lazaro-function \
+gcloud functions deploy spartan-function \
   --runtime python311 \
   --trigger-topic my-topic \
   --entry-point main
@@ -166,17 +172,11 @@ pytest -vv
 
 ---
 
-
-## Migration from Spartan
-
-Lazaro is based on the Spartan Serverless Framework. If you are migrating from Spartan, most core concepts and APIs remain compatible. See the documentation for migration tips and new features.
-
 ## Changelog
 
 Please see [CHANGELOG](CHANGELOG.md) for recent updates.
 
 ---
-
 
 ## Contributing
 
@@ -190,14 +190,12 @@ Please review [our security policy](../../security/policy) for how to report vul
 
 ---
 
-
 ## Credits
 
 - [Sydel Palinlin](https://github.com/nerdmonkey)
 - [All Contributors](../../contributors)
 
 ---
-
 
 ## License
 

@@ -92,7 +92,10 @@ def test_task_response_whitespace_task_name():
 def test_task_create_response_valid():
     """Test valid TaskCreateResponse creation."""
     response = TaskCreateResponse(
-        task_name="projects/test-project/locations/us-central1/queues/test-queue/tasks/test-task",
+        task_name=(
+            "projects/test-project/locations/us-central1/queues/test-queue/tasks/"
+            "test-task"
+        ),
         queue_name="test-queue",
         schedule_time=datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
         created_time=datetime(2024, 1, 1, 10, 0, 0, tzinfo=timezone.utc),

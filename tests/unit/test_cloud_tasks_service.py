@@ -228,7 +228,10 @@ def test_get_task_success(cloud_tasks_service):
     assert response.http_method == "POST"
 
     cloud_tasks_service.client.get_task.assert_called_once_with(
-        name="projects/test-project/locations/us-central1/queues/test-queue/tasks/test-task"
+        name=(
+            "projects/test-project/locations/us-central1/queues/test-queue/tasks/"
+            "test-task"
+        )
     )
 
 
@@ -304,7 +307,10 @@ def test_delete_task_success(cloud_tasks_service):
     assert response.task_name == "test-task"
 
     cloud_tasks_service.client.delete_task.assert_called_once_with(
-        name="projects/test-project/locations/us-central1/queues/test-queue/tasks/test-task"
+        name=(
+            "projects/test-project/locations/us-central1/queues/test-queue/tasks/"
+            "test-task"
+        )
     )
 
 
@@ -329,7 +335,10 @@ def test_run_task_success(cloud_tasks_service):
     assert response.task_name == "test-task"
 
     cloud_tasks_service.client.run_task.assert_called_once_with(
-        name="projects/test-project/locations/us-central1/queues/test-queue/tasks/test-task"
+        name=(
+            "projects/test-project/locations/us-central1/queues/test-queue/tasks/"
+            "test-task"
+        )
     )
 
 
@@ -470,7 +479,10 @@ def test_construct_task_url_without_base_url():
             service = CloudTasksService()
             url = service._construct_task_url("/test-endpoint")
 
-            expected = "https://us-central1-test-project.cloudfunctions.net/test-service/test-endpoint"
+            expected = (
+                "https://us-central1-test-project.cloudfunctions.net/test-service"
+                "/test-endpoint"
+            )
             assert url == expected
 
 

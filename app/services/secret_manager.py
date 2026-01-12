@@ -89,7 +89,8 @@ class SecretManagerService:
         ...     enable_cache=True,
         ...     cache_ttl_seconds=300
         ... )
-        >>> secret = cached_service.get_secret("api-key")  # Cached for 5 minutes
+        >>> secret = cached_service.get_secret("api-key")  # Cached for 5
+        ... # minutes
 
     See Also:
         - SecretCreateRequest: Request model for creating secrets
@@ -109,17 +110,19 @@ class SecretManagerService:
         Initialize the Secret Manager service.
 
         Args:
-            project_id: Google Cloud project ID. If None, will attempt to detect from environment.
-            credentials: Google Cloud credentials object or service account key JSON string.
+            project_id: Google Cloud project ID. If None, will attempt to detect from
+                       environment.
+            credentials: Google Cloud credentials object or service account key JSON
+                        string.
                         If None, will use default credentials.
-            credentials_path: Path to service account key file. If provided, takes precedence
-                            over credentials parameter.
+            credentials_path: Path to service account key file. If provided, takes
+                            precedence over credentials parameter.
             enable_cache: Enable in-memory caching for secret values (default: False)
             cache_ttl_seconds: Time-to-live for cached secrets in seconds (default: 300)
 
         Raises:
-            SecretManagerException: If project_id cannot be determined, credentials are invalid,
-                                  or client initialization fails.
+            SecretManagerException: If project_id cannot be determined, credentials are
+                                  invalid, or client initialization fails.
         """
         self.logger = get_logger("secret_manager_service")
 
@@ -647,18 +650,22 @@ class SecretManagerService:
 
         if isinstance(e, gcp_exceptions.Unauthenticated):
             raise SecretManagerException(
-                "Authentication failed. Please check your credentials and ensure they have "
-                "the necessary permissions for Secret Manager operations."
+                "Authentication failed. Please check your credentials and ensure "
+                "they have the necessary permissions for Secret Manager "
+                "operations."
             )
         elif isinstance(e, gcp_exceptions.PermissionDenied):
             raise SecretManagerException(
-                f"Permission denied for project '{self.project_id}'. Please ensure your "
-                "credentials have the 'Secret Manager Admin' or appropriate IAM roles."
+                (
+                    f"Permission denied for project '{self.project_id}'. "
+                    "Please ensure your credentials have the 'Secret Manager Admin' "
+                    "or appropriate IAM roles."
+                )
             )
         elif isinstance(e, gcp_exceptions.NotFound):
             raise SecretManagerException(
-                f"Project '{self.project_id}' not found. Please verify the project ID "
-                "and ensure it exists and is accessible."
+                f"Project '{self.project_id}' not found. "
+                "Please verify the project ID and ensure it exists and is accessible."
             )
         else:
             raise SecretManagerException(
@@ -831,7 +838,10 @@ class SecretManagerService:
             (
                 gcp_exceptions.PermissionDenied,
                 lambda: SecretAccessDeniedException(
-                    f"Permission denied for {operation} on secret '{secret_name}': {error_msg}"
+                    (
+                        f"Permission denied for {operation} on secret '{secret_name}': "
+                        f"{error_msg}"
+                    )
                 ),
             ),
             (
@@ -867,7 +877,10 @@ class SecretManagerService:
             (
                 gcp_exceptions.ServiceUnavailable,
                 lambda: SecretUnavailableException(
-                    f"Secret Manager service temporarily unavailable during {operation}: {error_msg}"
+                    (
+                        "Secret Manager service temporarily unavailable during "
+                        f"{operation}: {error_msg}"
+                    )
                 ),
             ),
             (
@@ -915,7 +928,10 @@ class SecretManagerService:
         """Handle FailedPrecondition exceptions."""
         if "disabled" in error_msg.lower() or "destroyed" in error_msg.lower():
             return SecretVersionNotFoundException(
-                f"Secret '{secret_name}' version '{version}' is not accessible (disabled or destroyed)"
+                (
+                    f"Secret '{secret_name}' version '{version}' is not accessible "
+                    "(disabled or destroyed)"
+                )
             )
         else:
             return SecretManagerException(
@@ -1065,17 +1081,18 @@ class SecretManagerService:
             )
 
     def clear_cache(self) -> None:
-        """
-        Clear all cached secrets.
+        """Clear all cached secrets.
 
-        This method removes all entries from the in-memory cache. This is useful when you need
-        to force fresh retrieval of all secrets, such as after a bulk update operation or when
-        you suspect cached data may be stale. If caching is not enabled, this method has no effect.
+        This method removes all entries from the in-memory cache.
+        This is useful when you need to force fresh retrieval of all secrets,
+        such as after
+        a bulk update operation, or when you suspect cached data may be stale.
+        If caching is not enabled, this method has no effect.
 
         Note:
-            - Only affects the local cache; does not modify secrets in Google Cloud
-            - Subsequent get_secret() calls will fetch fresh data from the API
-            - Cache statistics are reset to zero
+            - Only affects the local cache; does not modify secrets in Google Cloud.
+            - Subsequent get_secret() calls will fetch fresh data from the API.
+            - Cache statistics are reset to zero.
 
         Example:
             >>> service = SecretManagerService(enable_cache=True)
@@ -1104,9 +1121,9 @@ class SecretManagerService:
         """
         Get cache statistics.
 
-        This method returns information about the current state of the cache, including the
-        number of cached entries, expired entries, and cache configuration. This is useful
-        for monitoring cache effectiveness and debugging cache-related issues.
+        This method returns information about the current state of the cache, including
+        the number of cached entries, expired entries, and cache configuration. This is
+        useful for monitoring cache effectiveness and debugging cache-related issues.
 
         Returns:
             Dictionary containing cache statistics:
@@ -1148,17 +1165,17 @@ class SecretManagerService:
 
     # Methods will be implemented in subsequent tasks
     def create_secret(self, request: SecretCreateRequest) -> SecretCreateResponse:
-        """
-        Create a new secret in Google Cloud Secret Manager.
+        """Create a new secret in Google Cloud Secret Manager.
 
-        This method creates a new secret resource and adds an initial version with the provided value.
-        The secret name must be unique within the project. Labels can be used to organize and
-        categorize secrets for easier management.
+        This method creates a new secret resource and adds an initial version with the
+        provided value. The secret name must be unique within the project. Labels can be
+        used to organize and categorize secrets for easier management.
 
         Args:
             request: SecretCreateRequest containing:
-                - secret_name: Unique identifier for the secret (must match [a-zA-Z0-9_-]+)
-                - secret_value: The sensitive data to store (will be encrypted at rest)
+                                - secret_name: Unique identifier for the secret
+                                    (must match [a-zA-Z0-9_-]+)
+                - secret_value: The sensitive data to store (encrypted at rest)
                 - replication_policy: Either "automatic" (default) or "user_managed"
                 - labels: Optional key-value pairs for organization (max 64 labels)
 
@@ -1171,7 +1188,8 @@ class SecretManagerService:
 
         Raises:
             SecretManagerException: If secret creation fails or secret already exists
-            InvalidSecretNameException: If secret name is invalid or contains illegal characters
+            InvalidSecretNameException: If secret name is invalid or contains illegal
+                characters
             InvalidSecretValueException: If secret value is empty or exceeds size limits
             SecretAccessDeniedException: If credentials lack necessary permissions
 
@@ -1243,7 +1261,8 @@ class SecretManagerService:
 
             version = self.client.add_secret_version(request=version_request)
 
-            # Extract version number from the version name (e.g., "projects/123/secrets/my-secret/versions/1" -> "1")
+            # Extract version number from the version name (e.g.,
+            # "projects/123/secrets/my-secret/versions/1" -> "1")
             version_number = version.name.split("/")[-1]
 
             response = SecretCreateResponse(
@@ -1277,13 +1296,15 @@ class SecretManagerService:
         """
         Retrieve a secret value from Google Cloud Secret Manager.
 
-        This method retrieves the decrypted value of a secret. By default, it returns the latest
-        enabled version. You can specify a specific version number to retrieve historical values.
-        If caching is enabled, frequently accessed secrets will be served from cache to improve
-        performance.
+        This method retrieves the decrypted value of a secret. By default, it returns
+        the latest enabled version. You can specify a specific version number to
+        retrieve historical values.
+        If caching is enabled, frequently accessed secrets will be served from cache to
+        improve performance.
 
         Args:
-            secret_name: Name of the secret to retrieve (must exist in the project)
+            secret_name: Name of the secret to retrieve (must exist in the
+                        project)
             version: Version identifier to retrieve. Options:
                 - "latest" (default): Returns the most recent enabled version
                 - Specific version number (e.g., "1", "2"): Returns that exact version
@@ -1365,8 +1386,10 @@ class SecretManagerService:
                 secret_name=secret_name,
                 secret_value=secret_value,
                 version=version_number,
-                created_time=datetime.now(),  # In real implementation, this would come from the API response
-                state="ENABLED",  # In real implementation, this would come from the API response
+                # In real implementation, this would come from the API response
+                created_time=datetime.now(),
+                # In real implementation, this would come from the API response
+                state="ENABLED",
             )
 
             # Cache the response
@@ -1397,27 +1420,26 @@ class SecretManagerService:
     def list_secrets(
         self, page_size: int = 100, page_token: Optional[str] = None
     ) -> SecretListResponse:
-        """
-        List all secrets in the project.
+        """List all secrets in the project.
 
-        This method returns metadata for all secrets in the project, including their names,
-        creation times, labels, and version counts. The actual secret values are not included
-        for security reasons. Results are paginated to handle large numbers of secrets efficiently.
+        This method returns metadata for all secrets in the project, including their
+        names, creation times, labels, and version counts.
+        The actual secret values are not
+        included for security reasons. Results are paginated to handle large numbers of
+        secrets.
 
         Args:
-            page_size: Maximum number of secrets to return per page (default: 100, max: 1000)
-            page_token: Token from a previous list_secrets call to retrieve the next page.
-                       Pass None or omit for the first page.
+            page_size: Maximum number of secrets to return per page (default: 100,
+                max: 1000)
+            page_token: Token from a previous list_secrets call
+                to retrieve the next page.
+                Pass None or omit for the first page.
 
         Returns:
             SecretListResponse containing:
-                - secrets: List of SecretMetadataResponse objects with:
-                    - secret_name: Name of each secret
-                    - created_time: When the secret was created
-                    - labels: Key-value pairs for organization
-                    - replication_policy: How the secret is replicated
-                    - version_count: Number of versions for this secret
-                - next_page_token: Token for retrieving the next page (None if last page)
+                - secrets: List of SecretMetadataResponse objects
+                - next_page_token: Token for retrieving the next page
+                  (None if last page)
                 - total_size: Total number of secrets (may not be available)
 
         Raises:
@@ -1435,7 +1457,7 @@ class SecretManagerService:
             >>> if response.next_page_token:
             ...     next_page = service.list_secrets(
             ...         page_size=10,
-            ...         page_token=response.next_page_token
+            ...         page_token=response.next_page_token,
             ...     )
         """
         operation = "secret listing"
@@ -1589,10 +1611,11 @@ class SecretManagerService:
         """
         Delete a secret and all its versions.
 
-        This method permanently deletes a secret and all of its versions. This operation cannot
-        be undone. If you need to temporarily disable access to a secret, consider using
-        disable_secret_version instead. If caching is enabled, all cached versions of this
-        secret will be invalidated.
+        This method permanently deletes a secret and all of its versions.
+        This operation cannot be undone. If you need to temporarily disable access to a
+        secret, consider
+        using disable_secret_version instead. If caching is enabled, all cached versions
+        of this secret will be invalidated.
 
         Args:
             secret_name: Name of the secret to delete
@@ -1609,11 +1632,14 @@ class SecretManagerService:
             SecretManagerException: If deletion fails
 
         Warning:
-            This operation is irreversible. All versions of the secret will be permanently deleted.
+            This operation is irreversible. All versions of the secret will be
+            permanently deleted.
 
         Example:
             >>> service = SecretManagerService()
-            >>> response = service.delete_secret("old-api-key")
+            >>> response = service.delete_secret(
+            ...     "old-api-key"
+            ... )
             >>> print(response.message)
             "Secret 'old-api-key' deleted successfully"
         """
@@ -1667,10 +1693,11 @@ class SecretManagerService:
         """
         Add a new version to an existing secret.
 
-        This method creates a new version of an existing secret with a new value. Previous versions
-        are preserved and remain accessible. The new version automatically becomes the "latest"
-        version. This is the recommended way to update secret values, as it maintains a complete
-        history and enables rollback if needed.
+        This method creates a new version of an existing secret with a new value.
+        Previous versions are preserved and remain accessible. The new version
+        automatically becomes the "latest" version.
+        This is the recommended way to update secret values, as it maintains a
+        complete history and enables rollback if needed.
 
         Args:
             request: SecretVersionCreateRequest containing:
@@ -1768,14 +1795,19 @@ class SecretManagerService:
             raise mapped_exception
 
     def list_secret_versions(
-        self, secret_name: str, page_size: int = 100, page_token: Optional[str] = None
+        self,
+        secret_name: str,
+        page_size: int = 100,
+        page_token: Optional[str] = None,
     ) -> SecretVersionListResponse:
         """
         List all versions of a secret.
 
-        This method returns metadata for all versions of a specific secret, including their
-        version numbers, states (ENABLED, DISABLED, DESTROYED), and creation times. This is
-        useful for auditing, rollback operations, and understanding the version history.
+        This method returns metadata for all versions of a specific secret, including
+        their version numbers, states (ENABLED, DISABLED, DESTROYED), and creation
+        times.
+        This is useful for auditing, rollback operations, and understanding the version
+        history.
 
         Args:
             secret_name: Name of the secret whose versions to list
@@ -1905,10 +1937,12 @@ class SecretManagerService:
         """
         Disable a specific secret version.
 
-        This method marks a secret version as disabled, preventing it from being accessed.
-        The version data is not deleted and can be re-enabled later if needed. This is useful
-        for temporarily revoking access to a compromised secret value while maintaining the
-        ability to restore it. Disabled versions cannot be accessed via get_secret().
+        This method marks a secret version as disabled, preventing it from being
+        accessed.
+        The version data is not deleted and can be re-enabled later if needed. This is
+        useful for temporarily revoking access to a compromised secret value while
+        maintaining the ability to restore it. Disabled versions cannot be accessed via
+        get_secret().
 
         Args:
             secret_name: Name of the secret
@@ -1928,7 +1962,8 @@ class SecretManagerService:
 
         Note:
             - Disabled versions can be re-enabled using enable_secret_version()
-            - Attempting to access a disabled version will raise SecretVersionNotFoundException
+                        - Attempting to access a disabled version will raise
+                            SecretVersionNotFoundException
             - If caching is enabled, the disabled version will be removed from cache
 
         Example:
@@ -1977,7 +2012,10 @@ class SecretManagerService:
 
             response = SecretOperationResponse(
                 success=True,
-                message=f"Secret version '{secret_name}' version '{version}' disabled successfully",
+                message=(
+                    f"Secret version '{secret_name}' version '{version}' "
+                    "disabled successfully"
+                ),
                 operation_time=datetime.now(),
             )
 
@@ -2008,9 +2046,10 @@ class SecretManagerService:
         """
         Enable a specific secret version.
 
-        This method re-enables a previously disabled secret version, making it accessible again.
-        This is useful for restoring access to a secret that was temporarily disabled. Only
-        disabled versions can be enabled; destroyed versions cannot be recovered.
+        This method re-enables a previously disabled secret version, making it
+        accessible again.
+        This is useful for restoring access to a secret that was temporarily disabled.
+        Only disabled versions can be enabled; destroyed versions cannot be recovered.
 
         Args:
             secret_name: Name of the secret
@@ -2024,7 +2063,8 @@ class SecretManagerService:
 
         Raises:
             SecretNotFoundException: If the secret does not exist
-            SecretVersionNotFoundException: If the version does not exist or is destroyed
+            SecretVersionNotFoundException: If the version does not exist or is
+                                           destroyed
             SecretAccessDeniedException: If credentials lack modify permissions
             SecretManagerException: If enable operation fails
 
@@ -2071,7 +2111,10 @@ class SecretManagerService:
 
             response = SecretOperationResponse(
                 success=True,
-                message=f"Secret version '{secret_name}' version '{version}' enabled successfully",
+                message=(
+                    f"Secret version '{secret_name}' version '{version}' "
+                    "enabled successfully"
+                ),
                 operation_time=datetime.now(),
             )
 
@@ -2099,13 +2142,13 @@ class SecretManagerService:
     def destroy_secret_version(
         self, secret_name: str, version: str
     ) -> SecretOperationResponse:
-        """
-        Permanently destroy a specific secret version.
+        """Permanently destroy a specific secret version.
 
-        This method permanently deletes the data for a specific secret version. This operation
-        is irreversible - the version cannot be recovered or re-enabled. Use this when you need
-        to ensure a secret value is completely removed from the system. For temporary revocation,
-        use disable_secret_version() instead.
+        This method permanently deletes the data for a specific secret version. This
+        operation is irreversible: the version cannot be recovered or re-enabled.
+        Use this when you need to ensure a secret value is completely removed from the
+        system.
+        For temporary revocation, use disable_secret_version() instead.
 
         Args:
             secret_name: Name of the secret
@@ -2124,14 +2167,15 @@ class SecretManagerService:
             SecretManagerException: If destroy operation fails
 
         Warning:
-            This operation is irreversible. The secret version data will be permanently deleted
-            and cannot be recovered. Consider using disable_secret_version() for temporary
-            revocation instead.
+            This operation is irreversible. The secret version data will be permanently
+            deleted and cannot be recovered. Consider using disable_secret_version() for
+            temporary revocation.
 
         Note:
-            - Destroyed versions cannot be accessed or re-enabled
-            - The version number remains in the version history but with state "DESTROYED"
-            - If caching is enabled, the destroyed version will be removed from cache
+            - Destroyed versions cannot be accessed or re-enabled.
+            - The version number remains in the version history, but with state
+              "DESTROYED".
+            - If caching is enabled, the destroyed version will be removed from cache.
 
         Example:
             >>> service = SecretManagerService()
@@ -2176,7 +2220,10 @@ class SecretManagerService:
 
             response = SecretOperationResponse(
                 success=True,
-                message=f"Secret version '{secret_name}' version '{version}' destroyed successfully",
+                message=(
+                    f"Secret version '{secret_name}' version '{version}' "
+                    "destroyed successfully"
+                ),
                 operation_time=datetime.now(),
             )
 
@@ -2205,10 +2252,13 @@ class SecretManagerService:
         """
         Get secret metadata without the actual value.
 
-        This method retrieves metadata about a secret without accessing the actual secret value.
-        This is useful for auditing, inventory management, and when you need information about
-        a secret but don't need (or don't have permission for) the actual secret data. This
-        operation is more efficient than get_secret() when you only need metadata.
+        This method retrieves metadata about a secret without accessing the actual
+        secret value.
+        This is useful for auditing, inventory management, and when you need
+        information about a secret but don't need (or don't have permission
+        for) the actual secret data.
+        This operation is more efficient than get_secret() when you only need
+        metadata.
 
         Args:
             secret_name: Name of the secret
@@ -2218,7 +2268,8 @@ class SecretManagerService:
                 - secret_name: The name of the secret
                 - created_time: When the secret was created
                 - labels: Key-value pairs for organization (if any)
-                - replication_policy: How the secret is replicated ("automatic" or "user_managed")
+                - replication_policy: How the secret is replicated ("automatic" or
+                  "user_managed")
                 - version_count: Total number of versions for this secret
 
         Raises:

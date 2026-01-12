@@ -139,6 +139,7 @@ def _setup_testing_environment(monkeypatch):
     monkeypatch.setenv("STORAGE_TYPE", "local")
     monkeypatch.setenv("APP_ENVIRONMENT", "test")
     from app.helpers.environment import env
+
     env.cache_clear()
     yield
     env.cache_clear()
