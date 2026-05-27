@@ -1,6 +1,7 @@
 <p align="center"><img src="docs/ssf_banner.png" alt="Lazaro - Based on Spartan Serverless Framework"></p>
 
 # Lazaro
+### Spartan for GCP
 
 ## About
 Lazaro is a structured serverless framework for building scalable Python applications on Google Cloud Platform. Based on the Spartan Serverless Framework, it focuses exclusively on GCP with consistent structure and first-class integrations for APIs, event-driven workloads, and ETL pipelines.
