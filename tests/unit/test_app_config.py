@@ -23,25 +23,6 @@ def test_settings_loads_env_vars():
         "LOG_LEVEL": "DEBUG",
         "LOG_CHANNEL": "file",
         "LOG_DIR": "/tmp/logs",
-        "DB_TYPE": "sqlite",
-        "DB_DRIVER": "sqlite",
-        "DB_HOST": "localhost",
-        "DB_NAME": "testdb",
-        "DB_USERNAME": "user",
-        "DB_PASSWORD": "password",
-        "DB_PORT": "",  # Set to empty to test default behavior
-        "DB_SSL_CA": "",  # Set to empty to test None conversion
-        "DB_SSL_VERIFY_CERT": "",  # Set to empty to test None conversion
-        "COGNITO_REGION": "us-east-1",
-        "COGNITO_USER_POOL_ID": "test-pool-id",
-        "COGNITO_CLIENT_ID": "test-client-id",
-        "TEST_USERNAME": "testuser",
-        "TEST_PASSWORD": "testpass",
-        "PUSHER_ID": "test-pusher-id",
-        "PUSHER_KEY": "test-pusher-key",
-        "PUSHER_SECRET": "test-pusher-secret",
-        "PUSHER_CLUSTER": "test-cluster",
-        "REPORTS_DESTINATION_PATH": "storage/reports",
         "STORAGE_TYPE": "s3",
         "STORAGE_BUCKET": "my-test-bucket",
         "STORAGE_PATH": "custom/storage/path",
@@ -61,19 +42,10 @@ def test_settings_loads_env_vars():
         assert settings.LOG_LEVEL == "DEBUG"
         assert settings.LOG_CHANNEL == "file"
         assert settings.LOG_DIR == "/tmp/logs"
-        assert settings.DB_TYPE == "sqlite"
-        assert settings.DB_DRIVER == "sqlite"
-        assert settings.DB_HOST == "localhost"
-        assert settings.DB_NAME == "testdb"
-        assert settings.DB_USERNAME == "user"
-        assert settings.DB_PASSWORD == "password"
         assert settings.STORAGE_TYPE == "s3"
         assert settings.STORAGE_BUCKET == "my-test-bucket"
         assert settings.STORAGE_PATH == "custom/storage/path"
         assert settings.APP_MAINTENANCE is False  # Default value
-        assert settings.DB_PORT is None  # Default value
-        assert settings.DB_SSL_CA is None  # Default value
-        assert settings.DB_SSL_VERIFY_CERT is None  # Default value
     finally:
         # Clean up environment variables
         for key in test_env_vars.keys():
@@ -101,12 +73,6 @@ def test_get_settings_cached():
         "LOG_LEVEL": "INFO",
         "LOG_CHANNEL": "stream",
         "LOG_DIR": "/tmp",
-        "DB_TYPE": "sqlite",
-        "DB_DRIVER": "sqlite",
-        "DB_HOST": "localhost",
-        "DB_NAME": "test.db",
-        "DB_USERNAME": "test",
-        "DB_PASSWORD": "test",
     }
 
     for key, value in test_env_vars.items():
@@ -141,12 +107,6 @@ def test_env_function_with_variable_name():
         "LOG_LEVEL": "INFO",
         "LOG_CHANNEL": "stream",
         "LOG_DIR": "/tmp",
-        "DB_TYPE": "sqlite",
-        "DB_DRIVER": "sqlite",
-        "DB_HOST": "localhost",
-        "DB_NAME": "test.db",
-        "DB_USERNAME": "test",
-        "DB_PASSWORD": "test",
     }
 
     for key, value in test_env_vars.items():
@@ -156,7 +116,6 @@ def test_env_function_with_variable_name():
         # Test getting specific variables
         assert env("APP_NAME") == "test-app"
         assert env("APP_ENVIRONMENT") == "test"
-        assert env("DB_TYPE") == "sqlite"
         assert env("STORAGE_TYPE") == "local"  # Default value
         assert env("STORAGE_PATH") == "storage/core"  # Default value
 
@@ -174,8 +133,7 @@ def test_env_function_with_variable_name():
 
 def test_db_port_validator():
     """
-    Test that the DB_PORT validator correctly converts string values to
-    integers.
+    Test that storage configuration is properly validated.
     """
     test_env_vars = {
         "APP_NAME": "test-app",
@@ -185,35 +143,30 @@ def test_db_port_validator():
         "LOG_LEVEL": "INFO",
         "LOG_CHANNEL": "stream",
         "LOG_DIR": "/tmp",
-        "DB_TYPE": "postgres",
-        "DB_DRIVER": "postgresql",
-        "DB_HOST": "localhost",
-        "DB_NAME": "testdb",
-        "DB_USERNAME": "user",
-        "DB_PASSWORD": "password",
     }
 
-    # Test with valid port number
-    test_env_vars["DB_PORT"] = "5432"
+    # Test with valid storage configuration
+    test_env_vars["STORAGE_TYPE"] = "s3"
+    test_env_vars["STORAGE_BUCKET"] = "my-bucket"
     for key, value in test_env_vars.items():
         os.environ[key] = value
 
     try:
         settings = EnvironmentVariables()
-        assert settings.DB_PORT == 5432
-        assert isinstance(settings.DB_PORT, int)
+        assert settings.STORAGE_TYPE == "s3"
+        assert settings.STORAGE_BUCKET == "my-bucket"
     finally:
         for key in test_env_vars.keys():
             os.environ.pop(key, None)
 
-    # Test with invalid port number (should default to None)
-    test_env_vars["DB_PORT"] = "invalid_port"
+    # Test with empty bucket (should default to None)
+    test_env_vars["STORAGE_BUCKET"] = ""
     for key, value in test_env_vars.items():
         os.environ[key] = value
 
     try:
         settings = EnvironmentVariables()
-        assert settings.DB_PORT is None
+        assert settings.STORAGE_BUCKET is None
     finally:
         for key in test_env_vars.keys():
             os.environ.pop(key, None)
@@ -231,26 +184,7 @@ def test_optional_fields_defaults():
         "LOG_LEVEL": "INFO",
         "LOG_CHANNEL": "stream",
         "LOG_DIR": "/tmp",
-        "DB_TYPE": "sqlite",
-        "DB_DRIVER": "sqlite",
-        "DB_HOST": "localhost",
-        "DB_NAME": "test.db",
-        "DB_USERNAME": "test",
-        "DB_PASSWORD": "test",
-        "DB_PORT": "",  # Set to empty to test default behavior
-        "DB_SSL_CA": "",  # Set to empty to test None conversion
-        "DB_SSL_VERIFY_CERT": "",  # Set to empty to test None conversion
         "STORAGE_BUCKET": "",  # Set to empty to test None conversion
-        "COGNITO_REGION": "us-east-1",
-        "COGNITO_USER_POOL_ID": "test-pool-id",
-        "COGNITO_CLIENT_ID": "test-client-id",
-        "TEST_USERNAME": "testuser",
-        "TEST_PASSWORD": "testpass",
-        "PUSHER_ID": "test-pusher-id",
-        "PUSHER_KEY": "test-pusher-key",
-        "PUSHER_SECRET": "test-pusher-secret",
-        "PUSHER_CLUSTER": "test-cluster",
-        "REPORTS_DESTINATION_PATH": "storage/reports",
     }
 
     for key, value in test_env_vars.items():
@@ -261,9 +195,6 @@ def test_optional_fields_defaults():
 
         # Test default values for optional fields
         assert settings.APP_MAINTENANCE is False
-        assert settings.DB_PORT is None
-        assert settings.DB_SSL_CA is None
-        assert settings.DB_SSL_VERIFY_CERT is None
         # Test storage values (will come from .env file in this case)
         assert settings.STORAGE_TYPE == "local"
         assert (
@@ -287,12 +218,6 @@ def test_storage_configuration():
         "LOG_LEVEL": "INFO",
         "LOG_CHANNEL": "stream",
         "LOG_DIR": "/tmp",
-        "DB_TYPE": "sqlite",
-        "DB_DRIVER": "sqlite",
-        "DB_HOST": "localhost",
-        "DB_NAME": "test.db",
-        "DB_USERNAME": "test",
-        "DB_PASSWORD": "test",
         "STORAGE_TYPE": "s3",
         "STORAGE_BUCKET": "my-bucket",
         "STORAGE_PATH": "custom/path",
@@ -326,22 +251,6 @@ def test_storage_defaults_when_not_provided(mocker):
         "LOG_LEVEL": "INFO",
         "LOG_CHANNEL": "stream",
         "LOG_DIR": "/tmp",
-        "DB_TYPE": "sqlite",
-        "DB_DRIVER": "sqlite",
-        "DB_HOST": "localhost",
-        "DB_NAME": "test.db",
-        "DB_USERNAME": "test",
-        "DB_PASSWORD": "test",
-        "COGNITO_REGION": "us-east-1",
-        "COGNITO_USER_POOL_ID": "test-pool-id",
-        "COGNITO_CLIENT_ID": "test-client-id",
-        "TEST_USERNAME": "testuser",
-        "TEST_PASSWORD": "testpass",
-        "PUSHER_ID": "test-pusher-id",
-        "PUSHER_KEY": "test-pusher-key",
-        "PUSHER_SECRET": "test-pusher-secret",
-        "PUSHER_CLUSTER": "test-cluster",
-        "REPORTS_DESTINATION_PATH": "storage/reports",
         # Note: No STORAGE_* variables provided to test defaults
     }
 

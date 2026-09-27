@@ -2,8 +2,6 @@ from typing import Any, List
 
 from app.helpers.environment import env
 
-from .database import DatabaseSettings
-from .ddb import DDBSettings
 from .log import LogSettings
 
 
@@ -19,8 +17,6 @@ class AppSettings:
     ]
 
     log: LogSettings = LogSettings()
-    db: DatabaseSettings = DatabaseSettings()
-    ddb: DDBSettings = DDBSettings()
 
     @property
     def environment(self) -> str:

@@ -24,7 +24,6 @@ def test_appsettings_dot_access_and_defaults(monkeypatch):
         "ALLOWED_ORIGINS": "a,b",
         "LOG_LEVEL": "INFO",
         "LOG_DIR": "logs",
-        "DB_NAME": "ddb",
     }
 
     monkeypatch.setattr("app.helpers.environment.env", make_env(mapping))
@@ -40,24 +39,37 @@ def test_appsettings_dot_access_and_defaults(monkeypatch):
 
     # Dot access into nested settings
     assert cfg("log.level") == "INFO"
-    assert cfg("db.name") == "ddb"
     # Missing key returns default
     assert cfg("no.such.key", default=123) == 123
 
 
-def test_database_settings_port_conversion_and_defaults(monkeypatch):
-    mapping = {"DB_PORT": "5432", "DB_TYPE": "postgres", "DB_NAME": "spartan"}
-    monkeypatch.setattr("app.helpers.environment.env", make_env(mapping))
+def test_storage_settings_defaults(monkeypatch):
+    """Test storage settings with defaults."""
+    mapping = {
+        "APP_NAME": "myapp",
+        "APP_ENVIRONMENT": "dev",
+        "APP_DEBUG": False,
+        "ALLOWED_ORIGINS": "a,b",
+        "LOG_LEVEL": "INFO",
+        "LOG_DIR": "logs",
+        "STORAGE_TYPE": "s3",
+        "STORAGE_BUCKET": "my-bucket",
+    }
 
-    db_mod = importlib.reload(importlib.import_module("config.database"))
-    # The class attributes should reflect env values
-    ds = db_mod.DatabaseSettings()
+    # Set environment variables directly
+    for key, value in mapping.items():
+        monkeypatch.setenv(key, str(value))
 
-    assert ds.type == "postgres"
-    # Note: DatabaseSettings reads env() directly, which returns
-    # strings here — expect '5432'
-    assert ds.port == "5432"
-    assert ds.name == "spartan"
+    # Clear the cache to force reload
+    from app.helpers.environment import env
+
+    env.cache_clear()
+
+    # Get fresh settings
+    settings = env()
+
+    assert settings.STORAGE_TYPE == "s3"
+    assert settings.STORAGE_BUCKET == "my-bucket"
 
 
 def test_handlers_singleton_and_handler_configs(monkeypatch):

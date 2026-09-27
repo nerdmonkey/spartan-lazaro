@@ -3,8 +3,9 @@ from cloudevents.http.event import CloudEvent
 from app.helpers.logger import get_logger
 from app.helpers.environment import env
 
-logger = get_logger("spartan.lazaro.main")
+logger = get_logger("spartan.lazaro.slim.main")
 from config.app import config
+
 
 @functions_framework.cloud_event
 def main(cloud_event: CloudEvent) -> None:

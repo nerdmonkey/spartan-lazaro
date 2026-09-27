@@ -255,9 +255,9 @@ class ParameterManagerService:
     def _try_gcloud_config_project_id(self) -> Optional[str]:
         """Try to get project ID from gcloud config."""
         try:
-            import subprocess
+            import subprocess  # nosec B404
 
-            result = subprocess.run(
+            result = subprocess.run(  # nosec B603, B607
                 ["gcloud", "config", "get-value", "project"],
                 capture_output=True,
                 text=True,
@@ -2782,7 +2782,7 @@ class ParameterManagerService:
             parameter_name=parameter_name,
             version=version,
             access_type="render",
-            secret_resolution="enabled",
+            secret_resolution="enabled",  # nosec B106
         )
 
         try:
@@ -2798,7 +2798,7 @@ class ParameterManagerService:
                 parameter_value = str(parameter_response.data)
 
             # Pattern to match secret references
-            secret_pattern = (
+            secret_pattern = (  # nosec B105
                 r"\$\{secret\.(projects/[^/]+/secrets/[^/]+/versions/[^}]+)\}"
             )
 
@@ -3697,7 +3697,9 @@ class ParameterManagerService:
 
         # Pattern to match secret references:
         # ${secret.projects/PROJECT_ID/secrets/SECRET_NAME/versions/VERSION}
-        secret_pattern = r"\$\{secret\.(projects/[^/]+/secrets/[^/]+/versions/[^}]+)\}"
+        secret_pattern = (
+            r"\$\{secret\.(projects/[^/]+/secrets/[^/]+/versions/[^}]+)\}"  # nosec B105
+        )
 
         # Find all secret references
         matches = re.finditer(secret_pattern, parameter_value)
@@ -3902,7 +3904,9 @@ class ParameterManagerService:
         import re
 
         # Pattern to match secret references
-        secret_pattern = r"\$\{secret\.(projects/[^/]+/secrets/[^/]+/versions/[^}]+)\}"
+        secret_pattern = (
+            r"\$\{secret\.(projects/[^/]+/secrets/[^/]+/versions/[^}]+)\}"  # nosec B105
+        )
 
         # Check if pattern exists in the parameter value
         has_references = bool(re.search(secret_pattern, parameter_value))

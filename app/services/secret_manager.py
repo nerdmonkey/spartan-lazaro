@@ -253,9 +253,9 @@ class SecretManagerService:
     def _try_gcloud_config_project_id(self) -> Optional[str]:
         """Try to get project ID from gcloud config."""
         try:
-            import subprocess
+            import subprocess  # nosec B404
 
-            result = subprocess.run(
+            result = subprocess.run(  # nosec B603, B607
                 ["gcloud", "config", "get-value", "project"],
                 capture_output=True,
                 text=True,

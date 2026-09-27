@@ -4,6 +4,15 @@
 All notable changes to `spartan` will be documented in this file.
 
 ## [Unreleased]
+### Removed
+- **Database functionality completely removed**: Eliminated all database and DynamoDB dependencies from the framework
+  - Removed SQLAlchemy, Alembic, and database driver dependencies (pymysql, pg8000, psycopg2-binary)
+  - Deleted all database models, services, requests, responses, and exceptions
+  - Removed database helper modules and configuration files
+  - Deleted database seeder files and migration scripts
+  - Removed all database-related tests
+  - Framework is now database-free and focused on cloud-native serverless patterns
+
 ### Added
 - Enhance configuration and infrastructure setup for Spartan Framework.
 - Add comprehensive unit tests for code formatting and linting validation.
