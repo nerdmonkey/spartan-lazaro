@@ -27,6 +27,7 @@ Lazaro is versatile and can be used to efficiently develop:
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Usage](#usage)
+- [Project Structure](#project-structure)
 - [Testing](#testing)
 - [Changelog](#changelog)
 - [Contributing](#contributing)
@@ -75,7 +76,10 @@ git clone https://github.com/nerdmonkey/spartan-lazaro.git
 cd spartan-lazaro
 ```
 
-Create a virtual environment and install the required packages:
+Set up your environment:
+
+<details>
+<summary><strong>▶️ For Linux / macOS</strong></summary>
 
 ```bash
 python -m venv .venv
@@ -83,10 +87,42 @@ source .venv/bin/activate
 pip install -r requirements-dev.txt
 ```
 
-Copy `.env.example` to `.env`:
+</details>
+
+<details>
+<summary><strong>🪟 For Windows PowerShell</strong></summary>
+
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -r requirements-dev.txt
+```
+
+</details>
+
+<details>
+<summary><strong>🪟 For Windows CMD / DOS</strong></summary>
+
+```cmd
+python -m venv .venv
+.venv\Scripts\activate.bat
+pip install -r requirements-dev.txt
+```
+
+</details>
+
+Copy and configure environment variables:
 
 ```bash
-cp .env.example .env
+cp .env.example .env  # Linux/macOS
+```
+
+```powershell
+copy .env.example .env  # PowerShell
+```
+
+```cmd
+copy .env.example .env  # CMD
 ```
 
 ## Usage
@@ -136,6 +172,30 @@ gcloud functions deploy spartan-function \
   --runtime python311 \
   --trigger-topic my-topic \
   --entry-point main
+```
+
+## Project Structure
+
+```
+spartan-lazaro/
+├── app/
+│   ├── exceptions/        # Custom exception types
+│   ├── helpers/           # Utility helpers (logger, environment, context, tracer)
+│   ├── requests/          # Request/input models
+│   ├── responses/         # Response/output models
+│   └── services/
+│       ├── logging/       # Logger implementations (gcloud, file, stream, both)
+│       └── tracing/       # Distributed tracing implementations
+├── config/                # Configuration files
+├── docs/                  # Documentation (banner, CONTRIBUTING, CODE_OF_CONDUCT)
+├── scripts/               # Release tooling (CHANGELOG promotion, etc.)
+├── tests/                 # Test suites
+│   ├── unit/              # Unit tests
+│   ├── integration/       # Integration tests
+│   └── e2e/               # End-to-end tests
+├── main.py                # Cloud Functions entrypoint
+├── requirements.txt       # Python dependencies
+└── pyproject.toml         # Poetry configuration
 ```
 
 ## Testing
