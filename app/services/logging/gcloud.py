@@ -117,6 +117,8 @@ class GCloudLogger(BaseLogger):
                 trace = f"projects/{self._project_id}/traces/{trace_id}"
                 return trace
         except (IndexError, AttributeError):
+            # Silently ignore trace parsing errors - this is expected when
+            # trace context is malformed or unavailable
             pass
 
         return None
@@ -165,7 +167,9 @@ class GCloudLogger(BaseLogger):
                         "line": str(frame_info.lineno),
                         "function": frame_info.function or "unknown",
                     }
-        except Exception:
+        except Exception:  # nosec B110
+            # Silently ignore source location errors - this is expected when
+            # stack inspection fails or file paths are unavailable
             pass
 
         return None
@@ -202,9 +206,9 @@ class GCloudLogger(BaseLogger):
 
     def _should_sample(self) -> bool:
         """Determine if log should be written based on sample rate."""
-        import random
+        import random  # noqa: DUO102
 
-        return random.random() <= self.sample_rate
+        return random.random() <= self.sample_rate  # nosec B311
 
     def _create_log_entry(
         self,
